@@ -196,8 +196,7 @@ const Login = () => {
                     <Input type="password" placeholder="******" {...field} />
                   </FormControl>
                   <FormDescription className="flex gap-2">
-                    <Link to="/forgotPassword"> Forgot Password?</Link> or
-                    <Link to="/signUp">Sign Up</Link>
+                    <Link to="/forgotPassword"> Forgot Password?</Link>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
