@@ -84,8 +84,7 @@ const ForgotPassword = () => {
                     <Input type="email" placeholder="example@example.com" {...field} />
                   </FormControl>
                   <FormDescription className="flex gap-2">
-                    <Link to="/login">Already have a Login?</Link> or
-                    <Link to='/signUp'>Sign Up</Link>
+                    <Link to="/login">Already have a Login?</Link>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

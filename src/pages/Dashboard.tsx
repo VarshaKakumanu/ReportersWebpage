@@ -1,85 +1,76 @@
-import DOMPurify from 'dompurify';
-import { useEffect, useState } from "react";
-import { PageHeader, PageHeaderHeading } from "@/components/page-header";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CreateArticle from "./CreateArticle";
+import { DataTable } from "./articles/data-table";
+import {  columns } from "./articles/column";
+import axios from 'axios';
 import { toast } from 'sonner';
-// import { loggedIn } from "@/Redux/reducers/login";
 
 // Define the data type for articles
-interface Article {
+export type Payment = {
   id: number;
   title: string;
-  description: string;
-  content: string;
-}
+  status: "Published" | "draft";
+  email: string;
+};
 
-export default function Dashboard() {
-  const navigate = useNavigate();
-  const [articles, setArticles] = useState<Article[]>([]);
+const Dashboard: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [articles, setArticles] = useState<Payment[]>([]);
 
   useEffect(() => {
     axios.get("https://kb.etvbharat.com/keycloak/wp-json/wp/v2/posts?status=publish")
-      .then((response) => {
-        console.log(response?.data,"responseArticles");
+      .then((response: any) => {
+        console.log(response?.data, "responseArticles");
         const formattedData = response?.data?.map((item: any) => ({
           id: item?.id,
           title: item?.title?.rendered,
-          description:  DOMPurify.sanitize(item?.content?.rendered),
-          content: DOMPurify.sanitize(item?.content?.rendered),
+          status: "Published", // Assuming all fetched articles are published
+          email: item?.author_email || "unknown@example.com", // Replace with actual email field if available
         }));
         setArticles(formattedData);
-        
+        setLoading(false);  // Set loading to false after data is fetched
       })
-      
       .catch((error) => {
+        setError("Error fetching articles");
         toast("Error fetching articles:", {
-          description: error})
+          description: error.message
+        });
+        setLoading(false);  // Set loading to false even if there's an error
       });
   }, []);
 
-  if (articles?.length === 0) {
-    return <div className='flex justify-center items-center h-screen text-4xl font-sans font-semibold gap-3'>Loading... <Loader2 className=" animate-spin" /></div>;
+  console.log(articles, "here articlesssss");
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-const handleDescriptionClick = (id: number) => {
-    navigate(`/articles/${id}`);
-  };
-
-
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <>
-      <PageHeader>
-        <PageHeaderHeading>Articles</PageHeaderHeading>
-      </PageHeader>
-      {/* <Button variant="secondary" onClick={()=>{dispatch(loggedIn(product))}}>add to reducer</Button> */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {articles.map((article:any) => (
-          <Card key={article?.id} onClick={() => handleDescriptionClick(article?.id)} className='hover:shadow-xl hover:cursor-pointer hover:animate-in hover:-translate-y-1'>
-            <CardHeader>
-              <CardTitle>{article?.title}</CardTitle>
-              {/* <img
-                src=""
-                alt="Image"
-                className="block dark:hidden w-96 rounded-lg"
-              /> */}
-              <CardDescription
-                className="cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap"
-                dangerouslySetInnerHTML={{ __html: article?.description }}
-              />
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+      <Tabs defaultValue="Create" className="w-full">
+        <TabsList className="w-full flex justify-evenly">
+          <TabsTrigger className="w-full" value="Create">
+            Create Article
+          </TabsTrigger>
+          <TabsTrigger className="w-full" value="Articles">
+            Articles
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="Create">
+          <CreateArticle />
+        </TabsContent>
+        <TabsContent value="Articles">
+          <DataTable columns={columns} data={articles} />
+        </TabsContent>
+      </Tabs>
     </>
   );
-}
+};
+
+export default Dashboard;

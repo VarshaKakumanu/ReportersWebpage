@@ -7,6 +7,7 @@ import { persistor, store } from "./Redux/store";
 import { Toaster } from "sonner";
 import { PersistGate } from "redux-persist/integration/react";
 
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <Provider store={store} >
