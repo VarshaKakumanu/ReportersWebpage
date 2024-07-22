@@ -6,7 +6,6 @@ import NoMatch from "./pages/NoMatch";
 import Dashboard from "./pages/Dashboard";
 import Empty from "./pages/Empty";
 import Sample from "./pages/Sample";
-import ArticleDetail from "./pages/ArticleDetails";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 export const token = localStorage.getItem("access_token");
@@ -29,11 +28,6 @@ export const router = createBrowserRouter([
                 path: "empty",
                 element: <Empty />,
             },
-            {
-                path: "articles/:id", // Define a route with a parameter for the article ID
-                element: <ArticleDetail />,
-                
-              },
               
         ],
     },
