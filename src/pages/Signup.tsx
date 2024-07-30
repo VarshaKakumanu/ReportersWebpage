@@ -45,12 +45,12 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = (data: FormData) => {
     setLoading(true);
     setError(null);
-
-    try {
-      const response = await axios.post(
+  
+    axios
+      .post(
         "https://kb.etvbharat.com/keycloak/wp-json/users/v1/createUser",
         {
           username: data.username,
@@ -64,20 +64,24 @@ const SignUp = () => {
             'Content-Type': 'application/json',
           },
         }
-      );
-      if (response.status === 201) {
-        toast.success("User created successfully");
-        navigate("/login");
-      } else {
-        throw new Error("Failed to create user");
-      }
-    } catch (error) {
-      setError((error as Error)?.message);
-      toast.error("Error creating user: " + (error as Error).message);
-    } finally {
-      setLoading(false);
-    }
+      )
+      .then((response) => {
+        if (response.status === 201) {
+          toast.success("User created successfully");
+          navigate("/login");
+        } else {
+          throw new Error("Failed to create user");
+        }
+      })
+      .catch((error) => {
+        setError(error.message);
+        toast.error("Error creating user: " + error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+  
 
   return (
     <div className="bg-background text-foreground flex-grow flex items-center justify-evenly h-screen">

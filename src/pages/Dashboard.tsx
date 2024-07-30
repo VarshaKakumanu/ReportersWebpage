@@ -20,9 +20,8 @@ const Dashboard: React.FC = () => {
   const [articles, setArticles] = useState<Payment[]>([]);
 
   useEffect(() => {
-    axios.get("https://kb.etvbharat.com/keycloak/wp-json/wp/v2/posts?status=publish")
+    axios.get("https://kb.etvbharat.com/keycloak/wp-json/wp/v2/posts")
       .then((response: any) => {
-        console.log(response?.data, "responseArticles");
         const formattedData = response?.data?.map((item: any) => ({
           id: item?.id,
           title: item?.title?.rendered,
@@ -41,23 +40,22 @@ const Dashboard: React.FC = () => {
       });
   }, []);
 
-  console.log(articles, "here articlesssss");
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+
+
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   return (
-    <>
-      <Tabs defaultValue="Create" className="w-full">
+    <><div className='p-3'> 
+    <Tabs defaultValue="Create" className="w-full">
         <TabsList className="w-full flex justify-evenly">
           <TabsTrigger className="w-full" value="Create">
             Create Article
           </TabsTrigger>
+
           <TabsTrigger className="w-full" value="Articles">
             Articles
           </TabsTrigger>
@@ -66,9 +64,10 @@ const Dashboard: React.FC = () => {
           <CreateArticle />
         </TabsContent>
         <TabsContent value="Articles">
-          <DataTable columns={columns} data={articles} />
+      {loading ? ( <div>Loading...</div>):( <DataTable columns={columns} data={articles} />)}   
         </TabsContent>
-      </Tabs>
+      </Tabs></div>
+     
     </>
   );
 };

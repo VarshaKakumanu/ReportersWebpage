@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { updateUserDetails } from "@/Redux/reducers/userDetails";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { loginDataDetails } from "@/Redux/reducers/logindata";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -28,7 +29,7 @@ const formSchema = z.object({
     .string()
     .min(2, "Username must be at least 2 characters")
     .max(50, "Username must be at most 50 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(4, "Password must be at least 6 characters"),
 });
 
 const Login = () => {
@@ -59,7 +60,7 @@ const Login = () => {
 
     axios
       .post(
-        `https://kb.etvbharat.com/keycloak/wp-json/users/v1/checklogin`,
+        `http://test.kb.etvbharat.com/wp-json/users/v1/checklogin`,
         params,
         {
           headers: {
@@ -68,12 +69,14 @@ const Login = () => {
         }
       )
       .then((response) => {
-        const result = response?.data;
-        localStorage.setItem("access_token", result?.access_token);
-        if (result?.access_token) {
+        const result = response?.data?.access_token;
+        console.log(result,"resukst");
+        dispatch(loginDataDetails(result))
+        localStorage.setItem("access_token", result);
+        if (result) {
           axios
             .get(
-              `https://kb.etvbharat.com/keycloak/wp-json/users/v1/checkUser?${paramsCheck}`,
+              `http://test.kb.etvbharat.com/wp-json/users/v1/checkUser?${paramsCheck}`,
               {
                 headers: {
                   "Content-Type": "application/x-www-form-urlencoded",
@@ -82,7 +85,6 @@ const Login = () => {
             )
             .then((response:any) => {
               const result = response?.data;
-              console?.log(result, "checkuserResponse");
               if(result?.username){
                 dispatch(updateUserDetails(result));
                 dispatch(loggedIn(true));
@@ -107,7 +109,7 @@ const Login = () => {
         } else {
           axios
             .post(
-              `https://kb.etvbharat.com/keycloak/wp-json/wp/v2/users/me?`,
+              `http://test.kb.etvbharat.com/wp-json/wp/v2/users/me?`,
               params,
               {
                 headers: {
@@ -119,7 +121,7 @@ const Login = () => {
               const result = response?.data;
               if (result === null) {
                 axios.get(
-                  `https://kb.etvbharat.com/keycloak/wp-json/users/v1/checkUser?${paramsCheck}`,
+                  `http://test.kb.etvbharat.com/wp-json/users/v1/checkUser?${paramsCheck}`,
                   {
                     headers: {
                       "Content-Type": "application/x-www-form-urlencoded",
@@ -178,9 +180,9 @@ const Login = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} />
+                    <Input placeholder="enter your email.." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

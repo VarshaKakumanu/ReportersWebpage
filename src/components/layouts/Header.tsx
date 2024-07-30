@@ -33,7 +33,6 @@ export function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userDetails = useSelector((state: any) => state?.userDetails);
-  console.log(userDetails?.user_name, "userDetails");
 
   return (
     <header className="supports-backdrop-blur:bg-background/60 sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur">

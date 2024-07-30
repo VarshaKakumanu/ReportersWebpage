@@ -1,7 +1,7 @@
-import { useRef, useState, useCallback } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { useRef, useState, useCallback, useEffect } from "react"; // Import hooks from React
+import { z } from "zod"; // Import Zod for schema validation
+import { useForm } from "react-hook-form"; // Import useForm from react-hook-form
+import { Button } from "@/components/ui/button"; // Import custom Button component
 import {
   Form,
   FormControl,
@@ -9,12 +9,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
-import JoditEditor from "jodit-pro-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as tus from "tus-js-client";
+} from "@/components/ui/form"; // Import form components
+import { Input } from "@/components/ui/input"; // Import custom Input component
+import { Loader2 } from "lucide-react"; // Import Loader2 icon from lucide-react
+import JoditEditor from "jodit-pro-react"; // Import JoditEditor component
+import { zodResolver } from "@hookform/resolvers/zod"; // Import Zod resolver for react-hook-form
+import * as tus from "tus-js-client"; // Import tus-js-client for file uploads
+import axios from "axios"; // Import axios for API calls
+import { Progress } from "@/components/ui/progress"; // Import custom Progress component
+import { toast } from "sonner"; // Import toast for notifications
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -25,7 +28,7 @@ const formSchema = z.object({
   content: z.string().min(10, "Content must be at least 10 characters"),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>; // Define the type for form data based on the schema
 
 const CreateArticle = () => {
   const form = useForm<FormData>({
@@ -34,27 +37,32 @@ const CreateArticle = () => {
       title: "",
       content: "",
     },
-  });
+  }); // Initialize form with react-hook-form and Zod resolver
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [uploadPercentage, setUploadPercentage] = useState(0);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploadRunning, setIsUploadRunning] = useState(false);
-  const [upload, setUpload] = useState<tus.Upload | null>(null);
-  const editor = useRef(null);
+  const [loading, setLoading] = useState(false); // State for loading status
+  const [error, setError] = useState<string | null>(null); // State for error messages
+  const [uploadPercentage, setUploadPercentage] = useState(0); // State for upload progress
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for selected file
+  const [fileInputKey, setFileInputKey] = useState(Date.now()); // State for file input key to reset the input
+  const [isUploadRunning, setIsUploadRunning] = useState(false); // State for upload running status
+  const [upload, setUpload] = useState<tus.Upload | null>(null); // State for tus upload instance
+  const [videoUrl, setVideoUrl] = useState<string | null>(null); // State for video URL after upload
+  const editor = useRef(null); // Ref for the Jodit editor
   const {
     setValue,
+    getValues,
     handleSubmit,
     formState: { errors },
-  } = form;
+  } = form; // Destructure methods and state from useForm
 
   const config = {
     readonly: false,
-  };
+  }; // Configuration for Jodit editor
 
   const startUpload = useCallback(() => {
     if (!upload) return;
+
+    setIsUploadRunning(true);
 
     upload.options.onError = (error) => {
       console.error("Upload failed:", error);
@@ -68,66 +76,152 @@ const CreateArticle = () => {
       setUploadPercentage(Number(percentage));
       console.log(bytesUploaded, bytesTotal, `${percentage}%`);
     };
+
     upload.options.onSuccess = () => {
       if (upload.file instanceof File) {
         console.log(`Download ${upload.file.name} from ${upload.url}`);
+        setVideoUrl(upload.url || null);
+        // Append the video tag to the editor content
+        const currentContent = getValues("content");
+        const newContent = `${currentContent}<div><video width="400" controls><source src="${upload.url}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
+        setValue("content", newContent);
       }
-      setLoading(false);
       setIsUploadRunning(false);
       setUploadPercentage(100);
-      form.reset();
+      // Reset the file input and state after successful upload
+      setSelectedFile(null);
+      setUpload(null);
+      if(uploadPercentage === 100){
+        setUploadPercentage(0)
+      }
+      setFileInputKey(Date.now());
     };
-
-    setIsUploadRunning(!isUploadRunning);
     upload.start();
-  }, [upload]);
+  }, [upload, selectedFile, getValues, setValue]);
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0] || null;
+      setSelectedFile(file);
 
-    if (file) {
-      const options = {
-        endpoint: "https://tusd.tusdemo.net/files/",
-        metadata: {
-          filename: file.name,
-          filetype: file.type,
-        },
-        addRequestId: true,
-      };
+      if (file) {
+        const options = {
+          endpoint: "https://tusd.tusdemo.net/files/",
+          metadata: {
+            filename: file.name,
+            filetype: file.type,
+          },
+          addRequestId: true,
+        };
 
-      const newUpload = new tus.Upload(file, options);
+        const newUpload = new tus.Upload(file, options);
 
-      newUpload.findPreviousUploads().then((previousUploads) => {
-        if (previousUploads.length > 0) {
-          const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
-          const recentUploads = previousUploads.filter(
-            (upload) => new Date(upload.creationTime).getTime() > threeHoursAgo
-          );
+        newUpload.findPreviousUploads().then((previousUploads) => {
+          if (previousUploads.length > 0) {
+            const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
+            const recentUploads = previousUploads.filter(
+              (upload) =>
+                new Date(upload.creationTime).getTime() > threeHoursAgo
+            );
 
-          if (recentUploads.length > 0) {
-            newUpload.resumeFromPreviousUpload(recentUploads[0]);
+            if (recentUploads.length > 0) {
+              newUpload.resumeFromPreviousUpload(recentUploads[0]);
+            }
           }
-        }
 
-        setUpload(newUpload);
-        startUpload();
+          setUpload(newUpload);
+        });
+      }
+    },
+    []
+  );
+
+  const makeDummyAPICall = (title: string, content: string) => {
+    console.log(`Making API call with title: ${title} and content: ${content}`);
+
+    axios
+      .post(
+        "http://test.kb.etvbharat.com/wp-json/wp/v2/posts",
+        {
+          status: "draft",
+          title,
+          content,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic cmFqa0B0ZXN0LmluOnJvb3Q=`, // Basic Auth header
+          },
+        }
+      )
+      .then((response) => {
+        const id = response?.data?.id;
+        if (id) {
+          toast("success", {
+            description: "Post created successfully!",
+          });
+        } else {
+          toast("failed to post");
+        }
+      })
+      .catch((error) => {
+        console.error(`API call failed`, error);
       });
+  };
+
+  const handleBlur = useCallback(() => {
+    const titleValue = getValues("title");
+    const contentValue = getValues("content");
+
+    if (titleValue || contentValue) {
+      makeDummyAPICall(titleValue, contentValue);
     }
-  }, [startUpload]);
+  }, [getValues]);
 
   const onSubmit = (data: FormData, isDraft: boolean) => {
     console.log(data, isDraft, "data");
-    if (selectedFile) {
-      setLoading(true);
-      startUpload();
-    } else {
+    if (!selectedFile) {
       console.log("No file selected for upload");
+    } else if (uploadPercentage < 100) {
+      console.log("File upload not complete");
+    } else {
+      // Perform the final form submission, e.g., send data to your API
+      toast("Form submitted successfully", {
+        description: `${data}`,
+      });
     }
   };
 
+  const handleEditorChange = useCallback(
+    (newContent: string) => {
+      setValue("content", newContent);
+
+      // Check if the video URL is removed
+      if (videoUrl && !newContent.includes(videoUrl)) {
+        setVideoUrl(null);
+        setFileInputKey(Date.now()); // Reset the file input
+        setSelectedFile(null);
+        setUploadPercentage(0); // Reset the selected file state
+        toast("Video removed from content");
+      }
+    },
+    [setValue, videoUrl]
+  );
+
+  useEffect(() => {
+    if (videoUrl) {
+      const currentContent = getValues("content");
+      if (!currentContent.includes(videoUrl)) {
+        setVideoUrl(null);
+        setFileInputKey(Date.now()); // Reset the file input
+        setUploadPercentage(0);
+        setSelectedFile(null); // Reset the selected file state
+      }
+    }
+  }, [getValues, videoUrl]);
+
   return (
-    <div className="bg-background text-foreground flex-grow flex items-center justify-evenly h-screen">
+    <div className="bg-background text-foreground flex items-center justify-evenly h-full">
       <div className="w-full divide-y divide-slate-300">
         <div className="w-full flex">
           <Form {...form}>
@@ -142,7 +236,11 @@ const CreateArticle = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Article Title" {...field} />
+                      <Input
+                        placeholder="Article Title"
+                        {...field}
+                        onBlur={handleBlur}
+                      />
                     </FormControl>
                     <FormMessage>
                       {errors.title && errors.title.message}
@@ -155,9 +253,13 @@ const CreateArticle = () => {
                 <FormControl>
                   <JoditEditor
                     ref={editor}
-                    value={form.getValues("content")}
+                    value={getValues("content")}
                     config={config}
-                    onBlur={(newContent: string) => setValue("content", newContent)}
+                    onChange={handleEditorChange}
+                    onBlur={(newContent: string) => {
+                      setValue("content", newContent);
+                      handleBlur();
+                    }}
                   />
                 </FormControl>
                 <FormMessage>
@@ -167,12 +269,39 @@ const CreateArticle = () => {
               <FormItem>
                 <FormLabel>Upload</FormLabel>
                 <FormControl>
-                  <Input id="picture" className="bg-slate-400" type="file" onChange={handleFileChange} />
+                  <Input
+                    key={fileInputKey} // Use the key to reset the input field
+                    id="picture"
+                    className="bg-slate-400"
+                    type="file"
+                    onChange={handleFileChange}
+                  />
                 </FormControl>
                 <FormMessage>
                   {errors.content && errors.content.message}
                 </FormMessage>
+                {uploadPercentage > 0 && (
+                  <div>
+                    <p>Upload Progress: {uploadPercentage}%</p>
+                    <Progress value={uploadPercentage} />
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  onClick={startUpload}
+                  disabled={!selectedFile || isUploadRunning}
+                >
+                  {isUploadRunning ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload"
+                  )}
+                </Button>
               </FormItem>
+              {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
                 <Button className="w-full" disabled>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -184,13 +313,19 @@ const CreateArticle = () => {
                     <Button
                       type="button"
                       variant="secondary"
-                      onClick={handleSubmit((data: FormData) => onSubmit(data, true))}
+                      onClick={handleSubmit((data: FormData) =>
+                        onSubmit(data, true)
+                      )}
                     >
                       Save as Draft
                     </Button>
 
                     <div className="flex gap-2">
-                      <Button type="submit" variant="secondary">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => form.reset()}
+                      >
                         Cancel
                       </Button>
                       <Button type="submit">Submit</Button>
@@ -198,13 +333,6 @@ const CreateArticle = () => {
                   </div>
                 </>
               )}
-              {uploadPercentage > 0 && (
-                <div>
-                  <p>Upload Progress: {uploadPercentage}%</p>
-                  <div style={{ width: `${uploadPercentage}%`, backgroundColor: "blue", height: "5px" }} />
-                </div>
-              )}
-              {error && <div style={{ color: "red" }}>{error}</div>}
             </form>
           </Form>
         </div>

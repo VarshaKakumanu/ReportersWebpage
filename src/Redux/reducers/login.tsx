@@ -12,7 +12,6 @@ const loginReducer = (_state:any, action: { type: string; data: any }) => {
   switch (action.type) {
  
     case UserLoggedIn:
-      console.log(action?.data,"UserLoggedIn")
       return action.data;
 
     default:
