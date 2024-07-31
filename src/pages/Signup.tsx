@@ -51,7 +51,7 @@ const SignUp = () => {
   
     axios
       .post(
-        "https://kb.etvbharat.com/keycloak/wp-json/users/v1/createUser",
+        "https://test.kb.etvbharat.com/wp-json/users/v1/createUser",
         {
           username: data.username,
           first_name: data.firstName,

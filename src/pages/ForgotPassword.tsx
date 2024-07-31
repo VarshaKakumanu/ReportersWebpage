@@ -37,7 +37,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     // API call using axios
-    axios.post("https://kb.etvbharat.com/keycloak/wp-json/users/v1/reset-password", data, {
+    axios.post("https://test.kb.etvbharat.com/wp-json/users/v1/reset-password", data, {
       headers: {
         "Content-Type": "application/json",
       },

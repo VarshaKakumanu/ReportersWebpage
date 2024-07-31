@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
   const [articles, setArticles] = useState<Payment[]>([]);
 
   useEffect(() => {
-    axios.get("https://kb.etvbharat.com/keycloak/wp-json/wp/v2/posts")
+    axios.get("https://test.kb.etvbharat.com/wp-json/wp/v2/posts")
       .then((response: any) => {
         const formattedData = response?.data?.map((item: any) => ({
           id: item?.id,

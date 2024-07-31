@@ -24,7 +24,7 @@ export default function ArticleDetail() {
   useEffect(() => {
     axios
       .get(
-        "https://kb.etvbharat.com/keycloak/wp-json/wp/v2/posts?status=publish"
+        "https://test.kb.etvbharat.com/wp-json/wp/v2/posts?status=publish"
       )
       .then((response:any) => {
         const fetchedArticles = response?.data?.map((item: any) => ({

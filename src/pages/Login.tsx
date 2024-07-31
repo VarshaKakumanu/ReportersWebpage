@@ -60,7 +60,7 @@ const Login = () => {
 
     axios
       .post(
-        `http://test.kb.etvbharat.com/wp-json/users/v1/checklogin`,
+        `http://test.kb.etvbharat.com/users/v1/checklogin`,
         params,
         {
           headers: {

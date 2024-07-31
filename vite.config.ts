@@ -9,7 +9,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
+  build: { 
     sourcemap: true,
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
