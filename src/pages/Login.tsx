@@ -60,7 +60,7 @@ const Login = () => {
 
     axios
       .post(
-        `http://test.kb.etvbharat.com/users/v1/checklogin`,
+        `http://test.kb.etvbharat.com/wp-json/users/v1/checklogin`,
         params,
         {
           headers: {
@@ -96,7 +96,6 @@ const Login = () => {
                 });
                 dispatch(loggedIn(false));
               }
-             
             })
             .catch((error: any) => {
               toast("Failed to login", {
@@ -108,9 +107,8 @@ const Login = () => {
             });
         } else {
           axios
-            .post(
-              `http://test.kb.etvbharat.com/wp-json/wp/v2/users/me?`,
-              params,
+            .get(
+              `http://test.kb.etvbharat.com/wp-json/wp/v2/users/me?${params}`,
               {
                 headers: {
                   "Content-Type": "application/x-www-form-urlencoded",

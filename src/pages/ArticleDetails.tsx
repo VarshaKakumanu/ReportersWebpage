@@ -22,30 +22,25 @@ export default function ArticleDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(
-        "https://test.kb.etvbharat.com/wp-json/wp/v2/posts?status=publish"
-      )
-      .then((response:any) => {
-        const fetchedArticles = response?.data?.map((item: any) => ({
-          id: item?.id,
-          title: item?.title?.rendered,
-          description: DOMPurify.sanitize(item?.content?.rendered),
-          content: DOMPurify.sanitize(item?.content?.rendered),
+    axios.get("http://test.kb.etvbharat.com/wp-json/wp/v2/posts")
+      .then((response) => {
+        const fetchedArticles: Article[] = response.data.map(({ id, title, content }: any) => ({
+          id,
+          title: title.rendered,
+          description: DOMPurify.sanitize(content.rendered),
+          content: DOMPurify.sanitize(content.rendered),
         }));
 
         setArticles(fetchedArticles);
-        const foundArticle = fetchedArticles.find(
-          (article: Article) => article.id === parseInt(id as string)
-        );
-        setArticle(foundArticle);
-        setLoading(false); // Set loading to false after fetching articles
+        const foundArticle = fetchedArticles.find(article => article.id === parseInt(id as string));
+        setArticle(foundArticle || null);
+        setLoading(false);
       })
-      .catch((error: any) => {
+      .catch((error) => {
         toast.error("Error fetching articles:", {
-          description: error?.message,
+          description: error.message,
         });
-        setLoading(false); // Set loading to false even if there's an error
+        setLoading(false);
       });
   }, [id]);
 
@@ -67,12 +62,7 @@ export default function ArticleDetail() {
         <Card className="m-4 p-4 w-full">
           <div className="flex flex-col items-center justify-between gap-4">
             <h1 className="font-sans text-xl md:text-4xl lg:text-6xl" dangerouslySetInnerHTML={{ __html: article.title }}></h1>
-            {article && (
-              <p
-                className="text-sm md:text-base"
-                dangerouslySetInnerHTML={{ __html: article.content }}
-              ></p>
-            )}
+            <p className="text-sm md:text-base" dangerouslySetInnerHTML={{ __html: article.content }}></p>
           </div>
         </Card>
       ) : (
@@ -80,20 +70,20 @@ export default function ArticleDetail() {
       )}
 
       <Card className="m-4 p-4 flex flex-col items-center w-56">
-        <div className="flex text-lg font-bold m-2 items-center justify-center text-center ">
+        <div className="flex text-lg font-bold m-2 items-center justify-center text-center">
           Related Articles
         </div>
-        <div className="flex flex-col gap-6 ">
-          {articles.map((article:any) => (
+        <div className="flex flex-col gap-6">
+          {articles.map((article) => (
             <Card
-              key={article?.id}
+              key={article.id}
               className="flex flex-col items-center justify-between gap-1 p-2 hover:shadow-xl hover:cursor-pointer hover:animate-in hover:-translate-y-1"
               onClick={() => {
                 setLoading(true);
-                handleDescriptionClick(article?.id);
+                handleDescriptionClick(article.id);
               }}
             >
-              <h1 className="font-sans font-bold text-sm">{article?.title}</h1>
+              <h1 className="font-sans font-bold text-sm">{article.title}</h1>
               <p>tap for more info</p>
             </Card>
           ))}
