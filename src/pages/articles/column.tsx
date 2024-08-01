@@ -78,12 +78,16 @@ export const columns: ColumnDef<Payment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Edit</DropdownMenuLabel>
+          <DropdownMenuItem>
+              View
+            </DropdownMenuItem>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(payment.id.toString())}
             >
               Delete
             </DropdownMenuItem>
+           
           </DropdownMenuContent>
         </DropdownMenu>
       );
