@@ -12,7 +12,8 @@ export const loginDataDetails = (userDetails: any[]) => {
 const LoginDetailsReducer = (state: any[] = [], action: { type: string; data: any[] }) => {
   switch (action.type) {
     case loginData:
-      return action.data;
+      return action.data
+      console.log( action.data);
 
     default:
       return state;

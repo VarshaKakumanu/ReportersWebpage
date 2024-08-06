@@ -18,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
 // Define the schema for form validation
 const formSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters").max(50, "Username must be at most 50 characters"),

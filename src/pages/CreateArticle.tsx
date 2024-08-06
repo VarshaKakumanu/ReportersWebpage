@@ -18,6 +18,8 @@ import * as tus from "tus-js-client"; // Import tus-js-client for file uploads
 import axios from "axios"; // Import axios for API calls
 import { Progress } from "@/components/ui/progress"; // Import custom Progress component
 import { toast } from "sonner"; // Import toast for notifications
+import { useSelector } from "react-redux";
+import React from "react";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -61,44 +63,57 @@ const CreateArticle = () => {
 
   const startUpload = useCallback(() => {
     if (!upload) return;
-
+  
     setIsUploadRunning(true);
-
+  
     upload.options.onError = (error) => {
       console.error("Upload failed:", error);
       setError(`Failed because: ${error.message}`);
       setIsUploadRunning(false);
       setLoading(false);
     };
-
+  
     upload.options.onProgress = (bytesUploaded, bytesTotal) => {
-      const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+      let percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+      // Cap the percentage at 99 to avoid showing 100 until the video is loaded
+      if (Number(percentage) >= 99) {
+        percentage = "99";
+      }
       setUploadPercentage(Number(percentage));
       console.log(bytesUploaded, bytesTotal, `${percentage}%`);
     };
-
+  
     upload.options.onSuccess = () => {
       if (upload.file instanceof File) {
         console.log(`Download ${upload.file.name} from ${upload.url}`);
         setVideoUrl(upload.url || null);
+  
+        // Video is successfully uploaded but not yet inserted into the editor.
+        // We do not set uploadPercentage to 100% here, to wait until the editor insertion.
+  
         // Append the video tag to the editor content
         const currentContent = getValues("content");
         const newContent = `${currentContent}<div><video width="400" controls><source src="${upload.url}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
         setValue("content", newContent);
+        setIsUploadRunning(false);
+  
+        // Call a function to set the percentage to 100% once the video is loaded in the editor
+        setUploadPercentageTo100();
       }
-      setIsUploadRunning(false);
-      setUploadPercentage(100);
-      // Reset the file input and state after successful upload
-      setSelectedFile(null);
-      setUpload(null);
-      if(uploadPercentage === 100){
-        setUploadPercentage(0)
-      }
-      setFileInputKey(Date.now());
     };
+  
     upload.start();
   }, [upload, selectedFile, getValues, setValue]);
-
+  
+  const setUploadPercentageTo100 = () => {
+    setUploadPercentage(100);
+    // Reset the state
+    setSelectedFile(null);
+    setUpload(null);
+    setFileInputKey(Date.now());
+  };
+  const loginData = useSelector((state:any)=> state?.LoginDetailsReducer)
+console.log(loginData,"loginData")
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0] || null;

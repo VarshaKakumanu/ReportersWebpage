@@ -22,9 +22,11 @@ import { updateUserDetails } from "@/Redux/reducers/userDetails";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginDataDetails } from "@/Redux/reducers/logindata";
+import React from "react";
 
 // Define the schema for form validation
 const formSchema = z.object({
+  role:z.string(),
   username: z
     .string()
     .min(2, "Username must be at least 2 characters")
@@ -36,6 +38,7 @@ const Login = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      role:"",
       username: "",
       password: "",
     },
@@ -54,6 +57,7 @@ const Login = () => {
     });
 
     const paramsCheck = new URLSearchParams({
+      role:"contributor",
       username: data?.username,
       password: data?.password,
     });
@@ -162,7 +166,7 @@ const Login = () => {
         </h1>
       </div>
 
-      <div className="space-y-4 p-4 w-80 divide-y divide-slate-300">
+      <div className="space-y-5 p-4 w-80">
         <h2 className="text-xl md:text-3xl text-center font-semibold gap-3">
           {" "}
           <div className="flex justify-center items-center text-2xl md:hidden">
@@ -172,7 +176,8 @@ const Login = () => {
         </h2>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+         
             <FormField
               control={form.control}
               name="username"
