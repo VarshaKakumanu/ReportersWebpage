@@ -4,3 +4,4 @@
 export const UserLoggedIn = 'UserLoggedIn';
 export const UserDetailsUpdated = 'UserDetailsUpdated';
 export const loginData='loginData';
+export const LoginParam ="LoginParam"

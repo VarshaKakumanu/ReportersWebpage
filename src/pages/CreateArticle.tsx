@@ -18,8 +18,8 @@ import * as tus from "tus-js-client"; // Import tus-js-client for file uploads
 import axios from "axios"; // Import axios for API calls
 import { Progress } from "@/components/ui/progress"; // Import custom Progress component
 import { toast } from "sonner"; // Import toast for notifications
-import { useSelector } from "react-redux";
 import React from "react";
+import { useSelector } from "react-redux";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -50,6 +50,11 @@ const CreateArticle = () => {
   const [upload, setUpload] = useState<tus.Upload | null>(null); // State for tus upload instance
   const [videoUrl, setVideoUrl] = useState<string | null>(null); // State for video URL after upload
   const editor = useRef(null); // Ref for the Jodit editor
+  const loginParams = useSelector((state: any) => state.loginParams);
+  const s3_base_url = "http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/08/"
+  const curtime = Math.ceil(Date.now() / 1000);
+  const [postId, setpostId] = useState(Math.ceil(Date.now() / 1000));
+
   const {
     setValue,
     getValues,
@@ -61,76 +66,109 @@ const CreateArticle = () => {
     readonly: false,
   }; // Configuration for Jodit editor
 
+  const makeMediaAPICall = (url: string) => {
+    axios.get("http://test.kb.etvbharat.com/wp-json/media/v1/path?file_url=" + url + "&user_id=" + postId + "&post_id=" + postId)
+      .then((response: any) => {
+        console.log(response, "resooooooooooooo")
+      })
+      .catch((error) => {
+        toast.error("Error fetching articles:", {
+          description: error.message,
+        });
+        setLoading(false);
+      });
+  };
+
   const startUpload = useCallback(() => {
+
     if (!upload) return;
-  
+
+    console.log("Starting upload...");
+
     setIsUploadRunning(true);
-  
+
     upload.options.onError = (error) => {
       console.error("Upload failed:", error);
       setError(`Failed because: ${error.message}`);
       setIsUploadRunning(false);
       setLoading(false);
+      // Optionally handle retry logic or user feedback
+      upload.start();
     };
-  
+
     upload.options.onProgress = (bytesUploaded, bytesTotal) => {
       let percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-      // Cap the percentage at 99 to avoid showing 100 until the video is loaded
-      if (Number(percentage) >= 99) {
-        percentage = "99";
-      }
       setUploadPercentage(Number(percentage));
       console.log(bytesUploaded, bytesTotal, `${percentage}%`);
     };
-  
+
     upload.options.onSuccess = () => {
+      console.log("Upload successful", upload.url);
+      const final_uploaded_url = `${s3_base_url}${curtime}/${selectedFile?.name}`;
       if (upload.file instanceof File) {
-        console.log(`Download ${upload.file.name} from ${upload.url}`);
         setVideoUrl(upload.url || null);
-  
-        // Video is successfully uploaded but not yet inserted into the editor.
-        // We do not set uploadPercentage to 100% here, to wait until the editor insertion.
-  
-        // Append the video tag to the editor content
         const currentContent = getValues("content");
         const newContent = `${currentContent}<div><video width="400" controls><source src="${upload.url}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
         setValue("content", newContent);
+        makeMediaAPICall(final_uploaded_url);
         setIsUploadRunning(false);
-  
-        // Call a function to set the percentage to 100% once the video is loaded in the editor
-        setUploadPercentageTo100();
+        setUploadPercentage(100);
+        setSelectedFile(null);
+        setUpload(null);
+        setFileInputKey(Date.now());
       }
     };
-  
+
+
     upload.start();
   }, [upload, selectedFile, getValues, setValue]);
-  
-  const setUploadPercentageTo100 = () => {
-    setUploadPercentage(100);
-    // Reset the state
-    setSelectedFile(null);
-    setUpload(null);
-    setFileInputKey(Date.now());
+
+  const onSubmit = (data: FormData, isDraft: boolean) => {
+    console.log(data, isDraft, "data");
+
+    if (!videoUrl) {
+      toast("No file selected for upload or upload not complete");
+    } else if (uploadPercentage < 100) {
+      toast("File upload not complete");
+    } else {
+      toast("Form submitted successfully", {
+        description: `${data.title}`,
+      });
+
+      if (!isDraft) {
+        makeDummyAPICall(data.title, data.content);
+      }
+
+      setUploadPercentage(0);
+      setSelectedFile(null);
+      setUpload(null);
+      setFileInputKey(Date.now());
+      setVideoUrl(null);
+    }
   };
-  const loginData = useSelector((state:any)=> state?.LoginDetailsReducer)
-console.log(loginData,"loginData")
+
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0] || null;
+      console.log("Selected file:", file);
       setSelectedFile(file);
 
       if (file) {
         const options = {
-          endpoint: "https://tusd.tusdemo.net/files/",
+          endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
+          retryDelays: [0, 3000, 5000, 10000, 20000],
           metadata: {
             filename: file.name,
             filetype: file.type,
           },
           addRequestId: true,
+          headers: {
+            'Authorization': createBasicAuthHeader(), // Ensure this header is allowed by the server
+            'Tus-Resumable': '1.0.0'
+          }
         };
 
         const newUpload = new tus.Upload(file, options);
-
         newUpload.findPreviousUploads().then((previousUploads) => {
           if (previousUploads.length > 0) {
             const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
@@ -151,8 +189,15 @@ console.log(loginData,"loginData")
     []
   );
 
+  const createBasicAuthHeader = () => {
+    const credentials = `${loginParams?.email}:${loginParams?.password}`;
+    const encodedCredentials = btoa(credentials); // Encode credentials to Base64
+    return `Basic ${encodedCredentials}`;
+  };
+
   const makeDummyAPICall = (title: string, content: string) => {
-    console.log(`Making API call with title: ${title} and content: ${content}`);
+    const authHeader = createBasicAuthHeader();
+    console.log(title, content, "fffffffffffffffffffffffffffffffffffffffff")
 
     axios
       .post(
@@ -165,13 +210,15 @@ console.log(loginData,"loginData")
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Basic cmFqa0B0ZXN0LmluOnJvb3Q=`, // Basic Auth header
+            // Authorization: `Basic cmFqa0B0ZXN0LmluOnJvb3Q=`, // Basic Auth header
+            Authorization: authHeader,
           },
         }
       )
       .then((response) => {
         const id = response?.data?.id;
         if (id) {
+          setpostId(id)
           toast("success", {
             description: "Post created successfully!",
           });
@@ -184,28 +231,6 @@ console.log(loginData,"loginData")
       });
   };
 
-  const handleBlur = useCallback(() => {
-    const titleValue = getValues("title");
-    const contentValue = getValues("content");
-
-    if (titleValue || contentValue) {
-      makeDummyAPICall(titleValue, contentValue);
-    }
-  }, [getValues]);
-
-  const onSubmit = (data: FormData, isDraft: boolean) => {
-    console.log(data, isDraft, "data");
-    if (!selectedFile) {
-      console.log("No file selected for upload");
-    } else if (uploadPercentage < 100) {
-      console.log("File upload not complete");
-    } else {
-      // Perform the final form submission, e.g., send data to your API
-      toast("Form submitted successfully", {
-        description: `${data}`,
-      });
-    }
-  };
 
   const handleEditorChange = useCallback(
     (newContent: string) => {
@@ -235,6 +260,8 @@ console.log(loginData,"loginData")
     }
   }, [getValues, videoUrl]);
 
+
+
   return (
     <div className="bg-background text-foreground flex items-center justify-evenly h-full">
       <div className="w-full divide-y divide-slate-300">
@@ -251,11 +278,7 @@ console.log(loginData,"loginData")
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Article Title"
-                        {...field}
-                        onBlur={handleBlur}
-                      />
+                      <Input placeholder="Article Title" {...field} />
                     </FormControl>
                     <FormMessage>
                       {errors.title && errors.title.message}
@@ -273,7 +296,6 @@ console.log(loginData,"loginData")
                     onChange={handleEditorChange}
                     onBlur={(newContent: string) => {
                       setValue("content", newContent);
-                      handleBlur();
                     }}
                   />
                 </FormControl>
@@ -334,7 +356,6 @@ console.log(loginData,"loginData")
                     >
                       Save as Draft
                     </Button>
-
                     <div className="flex gap-2">
                       <Button
                         type="button"
