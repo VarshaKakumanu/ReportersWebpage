@@ -20,20 +20,30 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [articles, setArticles] = useState<Payment[]>([]);
   const userDetails = useSelector((state: any) => state?.userDetails);
+  const loginParams = useSelector((state:any) => state.loginParams);
+  const createBasicAuthHeader = () => {
+    const credentials = `${loginParams?.email}:${loginParams?.password}`;
+    const encodedCredentials = btoa(credentials); // Encode credentials to Base64
+    return `Basic ${encodedCredentials}`;
+  };
 
   useEffect(() => {
+    const authHeader = createBasicAuthHeader();
     const params = new URLSearchParams({
       page: "1",
-      per_page: "10",
+      per_page: "30",
       author: userDetails?.id.toString(),
     });
-    axios.get(`http://test.kb.etvbharat.com/wp-json/wp/v2/posts?${params}`)
+    axios.get(`http://test.kb.etvbharat.com/wp-json/wp/v2/posts?${params}`,{ headers: {
+      "Content-Type": "application/json",
+      Authorization:authHeader,
+    },})
       .then((response: any) => {
         console.log(response?.data, "posts list", userDetails);
         const formattedData = response?.data?.map((item: any) => ({
           id: item?.id,
           title: item?.title?.rendered,
-          status: "Published", // Assuming all fetched articles are published
+          status: "draft", // Assuming all fetched articles are published
           email: item?.author_email || userDetails?.email, // Replace with actual email field if available
         }));
         setArticles(formattedData);

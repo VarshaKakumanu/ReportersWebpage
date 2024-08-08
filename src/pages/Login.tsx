@@ -23,6 +23,7 @@ import { updateUserDetails } from "@/Redux/reducers/userDetails";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginDataDetails } from "@/Redux/reducers/logindata";
 import React from "react";
+import { loginPram } from "@/Redux/reducers/Loginparam";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -46,6 +47,8 @@ const Login = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setLoading(true);
@@ -74,7 +77,6 @@ const Login = () => {
       )
       .then((response) => {
         const result = response?.data?.access_token;
-        console.log(result,"resukst");
         dispatch(loginDataDetails(result))
         localStorage.setItem("access_token", result);
         if (result) {
@@ -90,6 +92,9 @@ const Login = () => {
             .then((response:any) => {
               const result = response?.data;
               if(result?.username){
+                const loginParamDispatch = Array.from(params.entries());
+                console.log(loginParamDispatch, "hhddsbjdbbshj");
+                dispatch(loginPram(loginParamDispatch));
                 dispatch(updateUserDetails(result));
                 dispatch(loggedIn(true));
                 window.location.href = "/";
