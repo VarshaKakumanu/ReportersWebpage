@@ -9,6 +9,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 3000 // Optional: Specify the port if needed
+  },
   build: { 
     sourcemap: true,
     chunkSizeWarningLimit: 5000,
