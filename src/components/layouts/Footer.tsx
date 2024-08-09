@@ -1,5 +1,6 @@
 import { appConfig } from "@/config/app";
 import { ModeToggle } from "../mode-toggle";
+import React from "react"
 
 export function Footer() {
     return (

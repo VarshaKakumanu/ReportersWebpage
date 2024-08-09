@@ -8,6 +8,7 @@ import Empty from "./pages/Empty";
 import Sample from "./pages/Sample";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
+import React from "react";
 export const token = localStorage.getItem("access_token");
 const basename = "/";
 
