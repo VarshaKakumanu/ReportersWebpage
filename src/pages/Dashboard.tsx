@@ -33,8 +33,10 @@ const Dashboard: React.FC = () => {
       page: "1",
       per_page: "30",
       author: userDetails?.id.toString(),
+      status: "draft"||"publish"||"future"||"pending"||"private"||"trash"||"auto-draft"||"request-pending"||"request-confirmed"||"request-failed"||"request-completed"||"any"||"string",
     });
-    axios.get(`http://test.kb.etvbharat.com/wp-json/wp/v2/posts?${params}`,{ headers: {
+    axios.get(`http://test.kb.etvbharat.com/wp-json/wp/v2/posts?${params}`,
+      { headers: {
       "Content-Type": "application/json",
       Authorization:authHeader,
     },})
@@ -57,10 +59,6 @@ const Dashboard: React.FC = () => {
         setLoading(false);  // Set loading to false even if there's an error
       });
   }, []);
-
-
-
-
 
   if (error) {
     return <div>Error: {error}</div>;

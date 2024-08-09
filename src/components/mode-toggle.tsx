@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { useTheme } from "@/hooks/useTheme"
+import React from "react"
 
 export function ModeToggle() {
   const { setTheme } = useTheme()

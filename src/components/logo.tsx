@@ -1,4 +1,5 @@
 import { appConfig } from "@/config/app";
+import React from "react"
 import { Icons } from "./icons";
 
 export function Logo() {
