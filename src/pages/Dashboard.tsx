@@ -6,6 +6,7 @@ import {  columns } from "./articles/column";
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
+import { BASE_URL } from '@/config/app';
 
 // Define the data type for articles
 export type Payment = {
@@ -35,7 +36,7 @@ const Dashboard: React.FC = () => {
       author: userDetails?.id?.toString() || null,
       status: "draft"||"publish"||"future"||"pending"||"private"||"trash"||"auto-draft"||"request-pending"||"request-confirmed"||"request-failed"||"request-completed"||"any"||"string",
     });
-    axios.get(`http://test.kb.etvbharat.com/wp-json/wp/v2/posts?${params}`,
+    axios.get(`${BASE_URL}wp/v2/posts?${params}`,
       { headers: {
       "Content-Type": "application/json",
       Authorization:authHeader,
