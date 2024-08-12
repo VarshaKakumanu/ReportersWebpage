@@ -1,3 +1,4 @@
+<<<<<<< Dockerfile
 # Step 1: Build the React app with Vite
 FROM node:20 as build
 
