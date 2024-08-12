@@ -14,7 +14,6 @@ export default defineConfig({
     port: 3000 // Optional: Specify the port if needed
   },
   build: { 
-    sourcemap: true,
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
