@@ -1,3 +1,4 @@
+<<<<<<< Dockerfile
 # Step 1: Build the React app with Vite
 FROM node:20 as build
 
@@ -21,4 +22,3 @@ EXPOSE 5173
 
 # Start the Vite server in preview mode to serve the app
 CMD ["npm", "run", "preview"]
-
