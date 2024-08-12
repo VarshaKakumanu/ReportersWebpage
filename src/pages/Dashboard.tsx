@@ -34,20 +34,34 @@ const Dashboard: React.FC = () => {
       page: "1",
       per_page: "30",
       author: userDetails?.id?.toString() || null,
-      status: "draft"||"publish"||"future"||"pending"||"private"||"trash"||"auto-draft"||"request-pending"||"request-confirmed"||"request-failed"||"request-completed"||"any"||"string",
+      status: [
+        "draft",
+        "publish",
+        "future",
+        "pending",
+        "private",
+        "trash",
+        "auto-draft",
+        "request-pending",
+        "request-confirmed",
+        "request-failed",
+        "request-completed",
+        "any",
+      ].join(","),
     });
     axios.get(`${BASE_URL}wp/v2/posts?${params}`,
       { headers: {
       "Content-Type": "application/json",
-      Authorization:authHeader,
+      Authorization: authHeader,
     },})
       .then((response: any) => {
-        console.log(response?.data, "posts list", userDetails);
+       
         const formattedData = response?.data?.map((item: any) => ({
           id: item?.id,
           title: item?.title?.rendered,
-          status: "draft", // Assuming all fetched articles are published
+          status: item?.status, // Assuming all fetched articles are published
           email: item?.author_email || userDetails?.email, // Replace with actual email field if available
+          content:item?.content?.rendered
         }));
         setArticles(formattedData);
         setLoading(false);  // Set loading to false after data is fetched
