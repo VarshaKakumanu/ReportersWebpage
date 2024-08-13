@@ -3,15 +3,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+
+import { ArrowUpDown} from "lucide-react";
 import React from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // This type is used to define the shape of our data.
@@ -83,7 +77,7 @@ export const columns: ColumnDef<Payment>[] = [
         //   <DropdownMenuItem>
 
 <Dialog>
-  <DialogTrigger > <Button variant="outline" onClick={() => { console.log(payment,"idddddddddddd");
+  <DialogTrigger > <Button variant="outline" onClick={() => { 
     navigator.clipboard.writeText(payment.id.toString())}}>view</Button></DialogTrigger>
   <DialogContent className="h-64 overflow-y-auto">
     <DialogHeader>

@@ -12,7 +12,6 @@ export const loginPram = (paramDetails:any) => {
 const LoginParamsReducer = (state = {}, action:any) => {
   switch (action.type) {
     case LoginParam:
-      console.log(action.data); // Log the data before returning
       return {
         ...state,
         ...action.data,
