@@ -114,7 +114,13 @@ const CreateArticle = () => {
         if (upload.file instanceof File) {
           setVideoUrl(upload.url || null);
           const CurrentContent = getValues("content");
-          const newContent = `${CurrentContent}<div><video style="max-width: 100%; height: auto;" controls autoplay><source src="${final_uploaded_url}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
+          const newContent = `<div>
+   <div> ${CurrentContent}</div>
+  <video style="max-width: 50%; height: auto;" controls>
+    <source src="${final_uploaded_url}" type="${selectedFile?.type}" />
+    Your browser does not support the video tag.
+  </video>
+</div>`;
           setValue("content", newContent);
         }
         makeMediaAPICall(final_uploaded_url);
@@ -188,13 +194,31 @@ const CreateArticle = () => {
 
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
-    // Ensure title and content are present before making the API call
-    if (data.title && contentWithVideo) {
+  
+    // Find the <video> tag with its source URL
+    const videoTagRegex = /<div><video[^>]*><source src=['"]([^'"]+)['"][^>]*type=['"]([^'"]+)['"][^>]*>[^<]*<\/video><\/div>/i;
+    const match = contentWithVideo.match(videoTagRegex);
+  
+    if (match) {
+      const videoUrl = match[1];  // Extract the video URL
+      const fileType = match[2].split("/")[1]; // Extract the file type (e.g., "mp4")
+      
+      // Construct the new video format with square brackets
+      const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
+      
+      // Replace only the matched video tag with the custom format
+      contentWithVideo = contentWithVideo.replace(videoTagRegex, `<p class='venkat'>${customVideoTag}</p>`);
+      
+      console.log(contentWithVideo, data.title, "contentWithVideo");
+  
+      // Now you can proceed with making the API call
       makeArticleAPICall(data.title, contentWithVideo);
     } else {
       toast("Form not submitted: Missing video URL or title");
     }
   };
+  
+  
   
 
   const handleEditorChange =
