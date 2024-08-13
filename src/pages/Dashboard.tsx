@@ -27,6 +27,8 @@ const Dashboard: React.FC = () => {
     const encodedCredentials = btoa(credentials); // Encode credentials to Base64
     return `Basic ${encodedCredentials}`;
   };
+  const ArticlesFalg = useSelector((state:any)=>state.articleFlag)
+
 
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
@@ -73,7 +75,7 @@ const Dashboard: React.FC = () => {
         });
         setLoading(false);  // Set loading to false even if there's an error
       });
-  }, []);
+  }, [ArticlesFalg]);
 
   if (error) {
     return <div>Error: {error}</div>;

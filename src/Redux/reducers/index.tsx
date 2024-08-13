@@ -5,6 +5,7 @@ import loginReducer from "./login";
 import userDetailsReducer from "./userDetails";
 import LoginDetailsReducer from "./logindata";
 import LoginParamsReducer from "./Loginparam";
+import articleFlagReducer from "./ArticlesFlag";
 
 // Define persist config
 const persistConfig = {
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
     userDetails: userDetailsReducer, // Handles state related to user details
     LoginDetailsReducer:LoginDetailsReducer,
     loginParams: LoginParamsReducer,
+    articleFlag:articleFlagReducer,
 });
 
 // Define a type for the entire state tree

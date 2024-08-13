@@ -67,7 +67,7 @@ export function DataTable<TData, TValue>({
       columnVisibility,
     },
   });
-  console.log(data.length,"data in datatable")
+
 
   return (
     <div>

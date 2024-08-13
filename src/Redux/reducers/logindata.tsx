@@ -13,7 +13,6 @@ const LoginDetailsReducer = (state: any[] = [], action: { type: string; data: an
   switch (action.type) {
     case loginData:
       return action.data
-      console.log( action.data);
 
     default:
       return state;

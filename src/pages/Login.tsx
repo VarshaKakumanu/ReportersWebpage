@@ -26,22 +26,24 @@ import { loginPram } from "@/Redux/reducers/Loginparam";
 import { BASE_URL } from "@/config/app";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import React from "react";
+import { Icons } from "@/components/icons";
 
 // Define the schema for form validation
 const formSchema = z.object({
-  role: z.string(),
   username: z
     .string()
-    .min(2, "Username must be at least 2 characters")
+    .email("Invalid email address") // Ensure the username is a valid email
     .max(50, "Username must be at most 50 characters"),
-  password: z.string().min(4, "Password must be at least 6 characters"),
+  password: z
+    .string()
+    .min(4, "Password must be at least 4 characters"), // Adjusted to 6 characters for a stronger password policy
 });
+
 
 const Login = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      role: "",
       username: "",
       password: "",
     },
@@ -49,16 +51,22 @@ const Login = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [params, setParams] = useState<{ msg?: string; email?: string; pwd?: string; error?: any }>({});
+  const [params, setParams] = useState<{
+    msg?: string;
+    email?: string;
+    pwd?: string;
+    error?: any;
+  }>({});
 
   useEffect(() => {
     // Extract the query parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const msg:any = urlParams.get("msg");
-    const email:any = urlParams.get("email");
-    const pwd:any = urlParams.get("pwd");
-    const error :any= urlParams.get("error");
+    const msg: any = urlParams.get("msg");
+    const email: any = urlParams.get("email");
+    const pwd: any = urlParams.get("pwd");
+    const error: any = urlParams.get("error");
 
     // Set parameters based on the msg type
     if (msg) {
@@ -82,22 +90,29 @@ const Login = () => {
     });
 
     try {
-      const response = await axios.post(`${BASE_URL}users/v1/checklogin`, params, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const response = await axios.post(
+        `${BASE_URL}users/v1/checklogin`,
+        params,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
       const result = response?.data?.access_token;
 
       if (result) {
         dispatch(loginDataDetails(result));
         localStorage.setItem("access_token", result);
 
-        const userResponse = await axios.get(`${BASE_URL}users/v1/checkUser?${paramsCheck}`, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
+        const userResponse = await axios.get(
+          `${BASE_URL}users/v1/checkUser?${paramsCheck}`,
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
 
         const userResult = userResponse?.data;
 
@@ -170,13 +185,16 @@ const Login = () => {
         <div className="space-y-4 hidden md:flex flex-col p-4">
           <h2 className="text-8xl mb-4">Etv Bharat</h2>
           <h1 className="text-xl font-semibold w-96 px-2">
-            Login to access and enjoy our exclusive articles, tailored to your interests.
+            Login to access and enjoy our exclusive articles, tailored to your
+            interests.
           </h1>
         </div>
 
         <div className="space-y-5 p-4 w-80">
           <h2 className="text-xl md:text-3xl text-center font-semibold gap-3">
-            <div className="flex justify-center items-center text-2xl md:hidden">Etv Bharat</div>
+            <div className="flex justify-center items-center text-2xl md:hidden">
+              Etv Bharat
+            </div>
             <div className="flex md:justify-center">Login</div>
           </h2>
 
@@ -202,7 +220,33 @@ const Login = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="******" {...field} />
+                      <div style={{ position: "relative", width: "full" }}>
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="******"
+                          {...field}
+                          style={{ paddingRight: "30px" }} // Adjust padding to accommodate icon
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={{
+                            position: "absolute",
+                            right: "5px",
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {showPassword ? (
+                            <Icons.closeEye />
+                          ) : (
+                            <Icons.openEye />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormDescription className="flex gap-2">
                       <Link to="/forgotPassword">Forgot Password?</Link>

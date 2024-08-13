@@ -19,8 +19,9 @@ import axios from "axios";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "@/config/app";
+import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -48,13 +49,14 @@ const CreateArticle = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [isUploadRunning, setIsUploadRunning] = useState(false);
-  const [upload, setUpload] = useState<tus.Upload | null>(null);
+  const [upload] = useState<tus.Upload | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const editor = useRef(null);
   const [s3_base_url,setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
   const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state: any) => state.loginParams);
+  const dispatch = useDispatch();
  
   const {
     setValue,
@@ -67,6 +69,20 @@ const CreateArticle = () => {
     readonly: false,
   };
 
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0] || null;
+      setSelectedFile(file);
+    },
+    []
+  );
+
+  const createBasicAuthHeader = () => {
+    const credentials = `${loginParams?.email}:${loginParams?.password}`;
+    const encodedCredentials = btoa(credentials); // Encode credentials to Base64
+    return `Basic ${encodedCredentials}`;
+  };
+
   const startUpload = useCallback(() => {
     if (!selectedFile) return;
     const upload = new tus.Upload(selectedFile, {
@@ -77,7 +93,7 @@ const CreateArticle = () => {
         filetype: selectedFile?.type,
       },
       onError: (error: any) => {
-        console.error("Upload failed:", error);
+        toast("Upload failed:", error);
         setError(`Failed because: ${error.message}`);
         setIsUploadRunning(false);
         setLoading(false);
@@ -96,17 +112,14 @@ const CreateArticle = () => {
         let final_uploaded_url =
           s3_base_url + curtime + "/" + selectedFile?.name;
         if (upload.file instanceof File) {
-          console.log(`Download ${upload.file.name} from ${upload.url}`);
           setVideoUrl(upload.url || null);
-          const currentContent = getValues("content");
-          const newContent = `${currentContent}<div><video width="400" controls><source src="${final_uploaded_url}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
+          const CurrentContent = getValues("content");
+          const newContent = `${CurrentContent}<div><video style="max-width: 100%; height: auto;" controls autoplay><source src="${final_uploaded_url}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
           setValue("content", newContent);
         }
         makeMediaAPICall(final_uploaded_url);
         setIsUploadRunning(false);
         setUploadPercentage(100);
-        setSelectedFile(null);
-        setUpload(null);
         if (uploadPercentage === 100) {
           setUploadPercentage(0);
         }
@@ -117,22 +130,24 @@ const CreateArticle = () => {
     upload.start();
   }, [upload, selectedFile, getValues, setValue]);
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-      setSelectedFile(file);
-    },
-    []
-  );
-
-  const createBasicAuthHeader = () => {
-    const credentials = `${loginParams?.email}:${loginParams?.password}`;
-    const encodedCredentials = btoa(credentials); // Encode credentials to Base64
-    return `Basic ${encodedCredentials}`;
+  const makeMediaAPICall = (url: string) => {
+    axios
+      .get(
+        `${BASE_URL}media/v1/path?file_url=` +
+          url +
+          "&user_id=" +  userDetails?.id.toString()
+         
+      )
+      .catch((error) => {
+        toast.error("Error fetching articles:", {
+          description: error.message,
+        });
+        setLoading(false);
+      });
   };
 
-
   const makeArticleAPICall = (title: string, content: string) => {
+  
     const authHeader = createBasicAuthHeader();
     setLoading(true);
     axios
@@ -156,47 +171,23 @@ const CreateArticle = () => {
           toast("success", {
             description: "Post created successfully!",
           });
+          dispatch(ArticleFlag(true));
           form.reset();
         } else {
           toast("failed to post");
+          dispatch(ArticleFlag(false));
         }
       })
       .catch((error) => {
-        console.error(`API call failed`, error);
+        toast(`API call failed`, error);
       })
       .finally(() => {
         setLoading(false);
       });
   };
 
-  const makeMediaAPICall = (url: string) => {
-    axios
-      .get(
-        `${BASE_URL}media/v1/path?file_url=` +
-          url +
-          "&user_id=" +  userDetails?.id.toString()
-         
-      )
-      .then((response: any) => {
-        console.log(response, "respponse");
-      })
-      .catch((error) => {
-        toast.error("Error fetching articles:", {
-          description: error.message,
-        });
-        setLoading(false);
-      });
-  };
-
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
-  
-    // Check if video URL is present and not yet included in the content
-    if (videoUrl && !contentWithVideo.includes(videoUrl)) {
-      const finalUploadedUrl = s3_base_url + curtime + "/" + selectedFile?.name;
-      contentWithVideo += `<div><video width="400" controls><source src="${finalUploadedUrl}" type="${selectedFile?.type}" />Your browser does not support the video tag.</video></div>`;
-    }
-  
     // Ensure title and content are present before making the API call
     if (data.title && contentWithVideo) {
       makeArticleAPICall(data.title, contentWithVideo);
@@ -206,39 +197,20 @@ const CreateArticle = () => {
   };
   
 
-  const handleEditorChange = useCallback(
+  const handleEditorChange =
     (newContent: string) => {
       setValue("content", newContent);
-
-      if (videoUrl && !newContent.includes(videoUrl)) {
-        setVideoUrl(null);
-        setFileInputKey(Date.now());
-        setSelectedFile(null);
-        setUploadPercentage(0);
-        toast("Video removed from content");
-      }
-    },
-    [setValue, videoUrl]
-  );
-
-  useEffect(() => {
+    }
+ 
+useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response)=>{
       const S3Url = response?.data?.s3_base;
       setS3_base_url(S3Url)
     })
-    if (videoUrl) {
-      const currentContent = getValues("content");
-      if (!currentContent.includes(videoUrl)) {
-        setVideoUrl(null);
-        setFileInputKey(Date.now());
-        setUploadPercentage(0);
-        setSelectedFile(null);
-      }
-    }
   }, [getValues, videoUrl]);
 
   return (
-    <div className="bg-background text-foreground flex items-center justify-evenly h-full">
+    <div className="bg-background text-foreground flex items-center justify-evenly h-screen overflow-y-auto">
       <div className="w-full divide-y divide-slate-300">
         <div className="w-full flex">
           <Form {...form}>
