@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
+import { BASE_URL } from "@/config/app";
 // Define the schema for form validation
 const formSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters").max(50, "Username must be at most 50 characters"),
@@ -52,7 +53,7 @@ const SignUp = () => {
   
     axios
       .post(
-        "https://test.kb.etvbharat.com/wp-json/users/v1/createUser",
+        `${BASE_URL}users/v1/createUser`,
         {
           username: data.username,
           first_name: data.firstName,

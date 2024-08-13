@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import React from "react";
 import { useSelector } from "react-redux";
+import { BASE_URL } from "@/config/app";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -136,7 +137,7 @@ const CreateArticle = () => {
     setLoading(true);
     axios
       .post(
-        "http://test.kb.etvbharat.com/wp-json/wp/v2/posts",
+        `${BASE_URL}wp/v2/posts`,
         {
           status: "draft",
           title,
@@ -171,7 +172,7 @@ const CreateArticle = () => {
   const makeMediaAPICall = (url: string) => {
     axios
       .get(
-        "http://test.kb.etvbharat.com/wp-json/media/v1/path?file_url=" +
+        `${BASE_URL}media/v1/path?file_url=` +
           url +
           "&user_id=" +  userDetails?.id.toString()
          
@@ -221,7 +222,7 @@ const CreateArticle = () => {
   );
 
   useEffect(() => {
-    axios.get("http://test.kb.etvbharat.com/wp-json/media/v1/path").then((response)=>{
+    axios.get(`${BASE_URL}media/v1/path`).then((response)=>{
       const S3Url = response?.data?.s3_base;
       setS3_base_url(S3Url)
     })

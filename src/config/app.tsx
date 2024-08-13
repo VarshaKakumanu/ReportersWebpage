@@ -21,3 +21,7 @@ export const appConfig: AppConfig = {
         url: "https://github.com/VarshaKakumanu/web-Etv",
     }
 }
+
+
+
+export const BASE_URL = "http://test.kb.etvbharat.com/wp-json/";

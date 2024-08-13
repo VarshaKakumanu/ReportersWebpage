@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
+import { BASE_URL } from "@/config/app";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -38,7 +39,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     // API call using axios
-    axios.post("https://test.kb.etvbharat.com/wp-json/users/v1/reset-password", data, {
+    axios.post(`${BASE_URL}users/v1/reset-password`, data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -58,6 +59,7 @@ const ForgotPassword = () => {
         setLoading(false);
       });
   };
+
   return (
     <div className="bg-background text-foreground flex-grow flex items-center justify-evenly h-screen">
       <div className="space-y-4 hidden md:flex flex-col p-4">
