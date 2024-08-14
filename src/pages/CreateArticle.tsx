@@ -114,13 +114,11 @@ const CreateArticle = () => {
         if (upload.file instanceof File) {
           setVideoUrl(upload.url || null);
           const CurrentContent = getValues("content");
-          const newContent = `<div>
-   <div> ${CurrentContent}</div>
-  <video style="max-width: 50%; height: auto;" controls>
+          const newContent = `${CurrentContent}
+  <video style="max-width: 95%; height: auto;" controls>
     <source src="${final_uploaded_url}" type="${selectedFile?.type}" />
     Your browser does not support the video tag.
-  </video>
-</div>`;
+  </video>`;
           setValue("content", newContent);
         }
         makeMediaAPICall(final_uploaded_url);
@@ -194,20 +192,23 @@ const CreateArticle = () => {
 
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
-  
+    console.log(contentWithVideo)
+
     // Find the <video> tag with its source URL
-    const videoTagRegex = /<div><video[^>]*><source src=['"]([^'"]+)['"][^>]*type=['"]([^'"]+)['"][^>]*>[^<]*<\/video><\/div>/i;
-    const match = contentWithVideo.match(videoTagRegex);
-  
-    if (match) {
-      const videoUrl = match[1];  // Extract the video URL
-      const fileType = match[2].split("/")[1]; // Extract the file type (e.g., "mp4")
+    const videoTagRegex = /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/is;
+
+    // Using exec() to match the content
+    const matchResult = videoTagRegex.exec(contentWithVideo);
+  console.log(matchResult)
+    if (matchResult) {
+      const videoUrl = matchResult[1];  // Extract the video URL
+      const fileType = matchResult[2].split("/")[1]; // Extract the file type (e.g., "mp4")
       
       // Construct the new video format with square brackets
       const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
       
       // Replace only the matched video tag with the custom format
-      contentWithVideo = contentWithVideo.replace(videoTagRegex, `<p class='venkat'>${customVideoTag}</p>`);
+      contentWithVideo = contentWithVideo.replace(videoTagRegex,customVideoTag);
       
       console.log(contentWithVideo, data.title, "contentWithVideo");
   
