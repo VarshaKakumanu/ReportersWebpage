@@ -79,10 +79,10 @@ export const columns: ColumnDef<Payment>[] = [
 <Dialog>
   <DialogTrigger > <Button variant="outline" onClick={() => { 
     navigator.clipboard.writeText(payment.id.toString())}}>view</Button></DialogTrigger>
-  <DialogContent className="h-64 overflow-y-auto">
+  <DialogContent className="overflow-x-auto">
     <DialogHeader>
       <DialogTitle dangerouslySetInnerHTML={{ __html:payment?.title}}></DialogTitle>
-      <DialogDescription >
+      <DialogDescription>
       <p dangerouslySetInnerHTML={{ __html:payment?.content}}></p>
       </DialogDescription>
     </DialogHeader>
