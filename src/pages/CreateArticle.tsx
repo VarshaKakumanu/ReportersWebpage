@@ -114,9 +114,9 @@ const CreateArticle = () => {
         if (upload.file instanceof File) {
           setVideoUrl(upload.url || null);
           const CurrentContent = getValues("content");
-          const newContent = `<div>${CurrentContent}</div>
+          const newContent = `${CurrentContent}
  <div class="video-container">
-  <video controls preload='none' width="600" poster="">
+  <video controls preload='auto' width="600">
     <source src="${final_uploaded_url}" type="${selectedFile?.type}">
     Your browser does not support the video tag.
   </video>
