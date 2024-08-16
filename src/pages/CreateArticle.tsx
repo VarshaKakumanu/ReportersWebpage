@@ -115,18 +115,18 @@ const CreateArticle = () => {
           setVideoUrl(upload.url || null);
           const CurrentContent = getValues("content");
           const newContent = `${CurrentContent}
-  <video style="max-width: 95%; height: auto;" controls>
-    <source src="${final_uploaded_url}" type="${selectedFile?.type}" />
+ <div class="video-container">
+  <video controls preload='none' width="600" poster="https://assets.codepen.io/32795/poster.png">
+    <source src="${final_uploaded_url}" type="${selectedFile?.type}">
     Your browser does not support the video tag.
-  </video>`;
+  </video>
+</div>`;
           setValue("content", newContent);
         }
+        
         makeMediaAPICall(final_uploaded_url);
         setIsUploadRunning(false);
-        setUploadPercentage(100);
-        if (uploadPercentage === 100) {
-          setUploadPercentage(0);
-        }
+        setUploadPercentage(0);
         setFileInputKey(Date.now());
       },
     });
@@ -235,7 +235,7 @@ useEffect(() => {
   }, [getValues, videoUrl]);
 
   return (
-    <div className="bg-background text-foreground flex items-center justify-evenly h-screen overflow-y-auto">
+    <div className="bg-background text-foreground flex items-center justify-evenly max-h-full">
       <div className="w-full divide-y divide-slate-300">
         <div className="w-full flex">
           <Form {...form}>
@@ -284,6 +284,7 @@ useEffect(() => {
                     className="bg-slate-400"
                     type="file"
                     onChange={handleFileChange}
+                    autoFocus={true}
                   />
                 </FormControl>
                 <FormMessage>

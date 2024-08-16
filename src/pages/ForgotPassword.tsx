@@ -38,8 +38,9 @@ const ForgotPassword = () => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setLoading(true);
 
+    const Data = {...data,role:'contributor'}
     // API call using axios
-    axios.post(`${BASE_URL}users/v1/reset-password`, data, {
+    axios.post(`${BASE_URL}users/v1/reset-password`, Data, {
       headers: {
         "Content-Type": "application/json",
       },
