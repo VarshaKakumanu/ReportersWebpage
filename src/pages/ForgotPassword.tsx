@@ -19,6 +19,7 @@ import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { BASE_URL } from "@/config/app";
+import { ModeToggle } from "@/components/mode-toggle";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -62,9 +63,11 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="bg-background text-foreground flex-grow flex items-center justify-evenly h-screen">
-      <div className="space-y-4 hidden md:flex flex-col p-4">
+    <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-evenly p-4 h-screen">
+       <div className="flex ml-auto"> <ModeToggle /></div>
+       <div className="bg-background text-foreground flex-grow flex w-full items-center justify-evenly ">   <div className="space-y-4 hidden md:flex flex-col p-4">
         <h2 className="text-8xl mb-4">Etv Bharat</h2>
+
         <h1 className="text-xl font-semibold w-96 px-2">Reset Your password and access the Login</h1>
       </div>
       <div className="space-y-4 p-4 w-80 divide-y divide-slate-300 ">
@@ -109,6 +112,7 @@ const ForgotPassword = () => {
           </form>
         </Form>
       </div>
+    </div>
     </div>
   );
 };
