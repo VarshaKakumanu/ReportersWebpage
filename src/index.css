@@ -112,7 +112,15 @@
   position: absolute;
   top: 0;
   left: 0;
+  margin-bottom: 40px;
   width: 100%;
   height: 100%;
   object-fit: cover; /* This ensures the video covers the container while maintaining its aspect ratio */
+}
+
+.jodit-container:not(.jodit_inline) .jodit-wysiwyg jodit-media:before {
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: -1;
 }

@@ -116,18 +116,19 @@ const CreateArticle = () => {
           const CurrentContent = getValues("content");
           const newContent = `${CurrentContent}
  <div class="video-container">
-  <video controls preload='none' width="600" poster="https://assets.codepen.io/32795/poster.png">
+  <video controls preload='auto' width="600">
     <source src="${final_uploaded_url}" type="${selectedFile?.type}">
     Your browser does not support the video tag.
   </video>
 </div>`;
           setValue("content", newContent);
         }
-        
         makeMediaAPICall(final_uploaded_url);
         setIsUploadRunning(false);
         setUploadPercentage(0);
         setFileInputKey(Date.now());
+        setSelectedFile(null); // Clear the selected file
+  
       },
     });
 
@@ -192,8 +193,6 @@ const CreateArticle = () => {
 
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
-    console.log(contentWithVideo)
-
     // Find the <video> tag with its source URL
     const videoTagRegex = /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/is;
 
@@ -208,12 +207,12 @@ const CreateArticle = () => {
       const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
       
       // Replace only the matched video tag with the custom format
-      contentWithVideo = contentWithVideo.replace(videoTagRegex,customVideoTag);
+      const contentForApiCall = contentWithVideo.replace(videoTagRegex, customVideoTag);
       
       console.log(contentWithVideo, data.title, "contentWithVideo");
   
       // Now you can proceed with making the API call
-      makeArticleAPICall(data.title, contentWithVideo);
+      makeArticleAPICall(data.title, contentForApiCall);
     } else {
       toast("Form not submitted: Missing video URL or title");
     }
@@ -225,6 +224,7 @@ const CreateArticle = () => {
   const handleEditorChange =
     (newContent: string) => {
       setValue("content", newContent);
+      console.log(newContent,"newContent")
     }
  
 useEffect(() => {
