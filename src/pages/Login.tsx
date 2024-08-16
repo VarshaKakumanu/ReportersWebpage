@@ -27,6 +27,7 @@ import { BASE_URL } from "@/config/app";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import React from "react";
 import { Icons } from "@/components/icons";
+import { ModeToggle } from "@/components/mode-toggle";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -74,48 +75,51 @@ const Login = () => {
     }
   }, []);
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     setLoading(true);
     setError(null);
-
+  
     const params = new URLSearchParams({
       email: data?.username,
       password: data?.password,
     });
-
+  
     const paramsCheck = new URLSearchParams({
       role: "contributor",
       username: data?.username,
       password: data?.password,
     });
-
-    try {
-      const response = await axios.post(
-        `${BASE_URL}users/v1/checklogin`,
-        params,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      const result = response?.data?.access_token;
-
-      if (result) {
-        dispatch(loginDataDetails(result));
-        localStorage.setItem("access_token", result);
-
-        const userResponse = await axios.get(
-          `${BASE_URL}users/v1/checkUser?${paramsCheck}`,
-          {
+  
+    axios.post(`${BASE_URL}users/v1/checklogin`, params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
+      .then(response => {
+        const result = response?.data?.access_token;
+  
+        if (result) {
+          dispatch(loginDataDetails(result));
+          localStorage.setItem("access_token", result);
+  
+          return axios.get(`${BASE_URL}users/v1/checkUser?${paramsCheck}`, {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
-          }
-        );
-
+          });
+        } else {
+          return axios.get(`${BASE_URL}wp/v2/users/me?${params}`, {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }).then(() => {
+            throw new Error("Invalid username or password");
+          });
+        }
+      })
+      .then(userResponse => {
         const userResult = userResponse?.data;
-
+  
         if (userResult?.username) {
           const loginParamDispatch = Array.from(params.entries());
           dispatch(loginPram(loginParamDispatch));
@@ -123,35 +127,26 @@ const Login = () => {
           dispatch(loggedIn(true));
           window.location.href = "/";
         } else {
-          toast("Failed to login", {
-            description: "Invalid username or password",
-          });
-          dispatch(loggedIn(false));
+          throw new Error("Invalid username or password");
         }
-      } else {
-        await axios.get(`${BASE_URL}wp/v2/users/me?${params}`, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-
+      })
+      .catch(error => {
+        console.log(error);
         toast("Failed to login", {
-          description: "Invalid username or password",
+          description: error?.response?.data?.message,
         });
         dispatch(loggedIn(false));
-      }
-    } catch (error: any) {
-      toast("Failed to login", {
-        description: error?.response?.data?.RespStmsg,
+      })
+      .finally(() => {
+        setLoading(false);
       });
-      dispatch(loggedIn(false));
-    } finally {
-      setLoading(false);
-    }
   };
+  
 
   return (
-    <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-evenly h-screen">
+    <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-evenly h-screen p-4">
+    <div className="flex ml-auto"> <ModeToggle /></div>
+    
       <div>
         {params.msg === "credentials" && params.email && params.pwd && (
           <Alert>
@@ -182,13 +177,14 @@ const Login = () => {
         )}
       </div>
       <div className="flex items-center justify-evenly w-full">
-        <div className="space-y-4 hidden md:flex flex-col p-4">
-          <h2 className="text-8xl mb-4">Etv Bharat</h2>
-          <h1 className="text-xl font-semibold w-96 px-2">
-            Login to access and enjoy our exclusive articles, tailored to your
-            interests.
-          </h1>
-        </div>
+      <div className="bg-background text-foreground flex-grow flex w-full items-center justify-evenly"> 
+      <div className="space-y-4 hidden md:flex flex-col p-4">
+       <h2 className="text-8xl mb-4">Etv Bharat</h2>
+       <h1 className="text-xl font-semibold w-96 px-2">
+         Login to access and enjoy our exclusive articles, tailored to your
+         interests.
+       </h1>
+     </div>
 
         <div className="space-y-5 p-4 w-80">
           <h2 className="text-xl md:text-3xl text-center font-semibold gap-3">
@@ -272,6 +268,7 @@ const Login = () => {
           </Form>
         </div>
       </div>
+    </div>
     </div>
   );
 };
