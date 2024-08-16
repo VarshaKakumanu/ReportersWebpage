@@ -6,7 +6,7 @@ import { router } from './Router';
 const App: React.FC = () => {
 
   return (
-    <ThemeProvider>
+    <ThemeProvider defaultTheme='light'>
       <RouterProvider router={router} />
     </ThemeProvider>
   );
