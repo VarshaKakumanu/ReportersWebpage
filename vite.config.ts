@@ -1,16 +1,16 @@
-import path from "path";
+import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  base: '/var/www/reporters-app',
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-  build: { 
+  build: {
     rollupOptions: {
       output: {
         manualChunks(id) {
