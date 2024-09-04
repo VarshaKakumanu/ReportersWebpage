@@ -25,7 +25,7 @@ RUN echo '/* /index.html 200' > dist/_redirects
 RUN npm install -g serve
 
 # Expose the port where the application will run
-EXPOSE 9010
+EXPOSE 3000
 
 # Command to serve the application
-CMD ["serve", "-s", "dist", "-l", "9010"]
+CMD ["serve", "-s", "dist", "-l", "3000"]
