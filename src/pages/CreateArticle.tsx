@@ -44,20 +44,22 @@ const CreateArticle = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingImg, setLoadingImg] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const [imageFileInputKey, setImageFileInputKey] = useState(Date.now());
   const [isUploadRunning, setIsUploadRunning] = useState(false);
   const [upload] = useState<tus.Upload | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const editor = useRef(null);
-  const [s3_base_url,setS3_base_url] = useState("");
+  const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
   const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state: any) => state.loginParams);
   const dispatch = useDispatch();
- 
+
   const {
     setValue,
     getValues,
@@ -67,6 +69,7 @@ const CreateArticle = () => {
 
   const config = {
     readonly: false,
+    toolbar: false,
   };
 
   const handleFileChange = useCallback(
@@ -108,7 +111,6 @@ const CreateArticle = () => {
         console.log(bytesUploaded, bytesTotal, `${percentage}%`);
       },
       onSuccess: () => {
-      
         let final_uploaded_url =
           s3_base_url + curtime + "/" + selectedFile?.name;
         if (upload.file instanceof File) {
@@ -127,8 +129,8 @@ const CreateArticle = () => {
         setIsUploadRunning(false);
         setUploadPercentage(0);
         setFileInputKey(Date.now());
+        setImageFileInputKey(Date.now());
         setSelectedFile(null); // Clear the selected file
-  
       },
     });
 
@@ -140,8 +142,8 @@ const CreateArticle = () => {
       .get(
         `${BASE_URL}media/v1/path?file_url=` +
           url +
-          "&user_id=" +  userDetails?.id.toString()
-         
+          "&user_id=" +
+          userDetails?.id.toString()
       )
       .catch((error) => {
         toast.error("Error fetching articles:", {
@@ -152,7 +154,6 @@ const CreateArticle = () => {
   };
 
   const makeArticleAPICall = (title: string, content: string) => {
-  
     const authHeader = createBasicAuthHeader();
     setLoading(true);
     axios
@@ -194,44 +195,92 @@ const CreateArticle = () => {
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
     // Find the <video> tag with its source URL
-    const videoTagRegex = /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/is;
+    const videoTagRegex =
+      /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/is;
 
     // Using exec() to match the content
     const matchResult = videoTagRegex.exec(contentWithVideo);
-  console.log(matchResult)
+    console.log(matchResult);
     if (matchResult) {
-      const videoUrl = matchResult[1];  // Extract the video URL
+      const videoUrl = matchResult[1]; // Extract the video URL
       const fileType = matchResult[2].split("/")[1]; // Extract the file type (e.g., "mp4")
-      
+
       // Construct the new video format with square brackets
       const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
-      
+
       // Replace only the matched video tag with the custom format
-      const contentForApiCall = contentWithVideo.replace(videoTagRegex, customVideoTag);
-      
+      const contentForApiCall = contentWithVideo.replace(
+        videoTagRegex,
+        customVideoTag
+      );
+
       console.log(contentWithVideo, data.title, "contentWithVideo");
-  
+
       // Now you can proceed with making the API call
       makeArticleAPICall(data.title, contentForApiCall);
     } else {
       toast("Form not submitted: Missing video URL or title");
     }
   };
-  
-  
-  
 
-  const handleEditorChange =
-    (newContent: string) => {
-      setValue("content", newContent);
-      console.log(newContent,"newContent")
-    }
- 
-useEffect(() => {
-    axios.get(`${BASE_URL}media/v1/path`).then((response)=>{
+  const [imageFile, setImageFile] = useState<File | null>(null); // Separate state for image file
+
+  const handleFileChangeImage = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0] || null;
+      if (file && file.type.startsWith("image/")) {
+        setImageFile(file); // Set image file separately
+        setImageFileInputKey(Date.now()); // Ensure the key is updated
+      }
+    },
+    []
+  );
+
+  const handleImageUpload = useCallback(() => {
+    if (!imageFile) return; // Use imageFile instead of selectedFile
+    setLoadingImg(true);
+    const authHeader = createBasicAuthHeader();
+
+    const formData = new FormData(); // Create a new FormData object
+    formData.append("file", imageFile); // Append the image file to the FormData
+
+    axios
+      .post(
+        `${BASE_URL}wp/v2/media`, // Replace with your actual endpoint
+        formData, // Send the FormData object
+        {
+          headers: {
+            "Content-Type": imageFile.type, // Set the content type to the file's type
+            Authorization: authHeader,
+          },
+        }
+      )
+      .then((response) => {
+        const imageUrl = response.data.source_url; // Get the URL from the API response
+        const currentContent = getValues("content");
+        const updatedContent = `${currentContent}<div class="image-container"><img src="${imageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
+        setValue("content", updatedContent); // Update the content in the form
+        toast.success("Image uploaded successfully!");
+        setImageFile(null); // Clear the image file state
+      })
+      .catch((error) => {
+        toast.error("Error uploading image:", error.message);
+      })
+      .finally(() => {
+        setLoadingImg(false);
+      });
+  }, [imageFile, getValues, setValue]);
+
+  const handleEditorChange = (newContent: string) => {
+    setValue("content", newContent);
+    console.log(newContent, "newContent");
+  };
+
+  useEffect(() => {
+    axios.get(`${BASE_URL}media/v1/path`).then((response) => {
       const S3Url = response?.data?.s3_base;
-      setS3_base_url(S3Url)
-    })
+      setS3_base_url(S3Url);
+    });
   }, [getValues, videoUrl]);
 
   return (
@@ -241,7 +290,7 @@ useEffect(() => {
           <Form {...form}>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="space-y-2"
+              className="space-y-2 w-full"
             >
               <FormField
                 control={form.control}
@@ -250,10 +299,7 @@ useEffect(() => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Article Title"
-                        {...field}
-                      />
+                      <Input placeholder="Article Title" {...field} />
                     </FormControl>
                     <FormMessage>
                       {errors.title && errors.title.message}
@@ -275,21 +321,24 @@ useEffect(() => {
                   {errors.content && errors.content.message}
                 </FormMessage>
               </FormItem>
-              <FormItem>
-                <FormLabel>Upload</FormLabel>
-                <FormControl>
-                  <Input
-                    key={fileInputKey}
-                    id="picture"
-                    className="bg-slate-400"
-                    type="file"
-                    onChange={handleFileChange}
-                    autoFocus={true}
-                  />
-                </FormControl>
-                <FormMessage>
-                  {errors.content && errors.content.message}
-                </FormMessage>
+              <FormItem className="flex space-y-4 gap-2">
+                <div className="flex flex-col space-y-2 w-full">
+                  <FormLabel>Upload video</FormLabel>
+                  <FormControl>
+                    <Input
+                      key={fileInputKey}
+                      id="picture"
+                      className="bg-slate-400"
+                      type="file"
+                      onChange={handleFileChange}
+                      autoFocus={true}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {errors.content && errors.content.message}
+                  </FormMessage>
+                </div>
+
                 {uploadPercentage > 0 && (
                   <div>
                     <p>Upload Progress: {uploadPercentage}%</p>
@@ -307,10 +356,40 @@ useEffect(() => {
                       Uploading...
                     </>
                   ) : (
-                    "Upload"
+                    "Upload video"
                   )}
                 </Button>
               </FormItem>
+              <FormItem>
+                <FormItem className="flex space-y-4 gap-2">
+                  <div className="flex flex-col space-y-2 w-full">
+                    <FormLabel> Upload Image</FormLabel>
+                    <FormControl>
+                      <Input
+                        key={imageFileInputKey}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChangeImage}
+                        autoFocus={true}
+                      />
+                    </FormControl>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleImageUpload}
+                  >
+                    {loadingImg ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload Image"
+                    )}
+                  </Button>
+                </FormItem>
+              </FormItem>
+
               {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
                 <Button className="w-full" disabled>
@@ -322,9 +401,7 @@ useEffect(() => {
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={handleSubmit((data: FormData) =>
-                      onSubmit(data)
-                    )}
+                    onClick={handleSubmit((data: FormData) => onSubmit(data))}
                   >
                     Save as Draft
                   </Button>
