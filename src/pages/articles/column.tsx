@@ -77,9 +77,11 @@ export const columns: ColumnDef<Payment>[] = [
         //   <DropdownMenuItem>
 
 <Dialog>
+  
   <DialogTrigger > <Button variant="outline" onClick={() => { 
     navigator.clipboard.writeText(payment.id.toString())}}>view</Button></DialogTrigger>
-  <DialogContent className="h-96 rounded-md overflow-y-scroll">
+  
+  <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll">
     <DialogHeader className="grid" >
       <DialogTitle dangerouslySetInnerHTML={{ __html:payment?.title}}></DialogTitle>
       <DialogDescription>
