@@ -384,7 +384,7 @@ const CreateArticle = () => {
                         Uploading...
                       </>
                     ) : (
-                      "Upload Image"
+                     <p>Upload Image</p>
                     )}
                   </Button>
                 </FormItem>

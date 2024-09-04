@@ -17,7 +17,7 @@ export const appConfig: AppConfig = {
         url: "https://github.com/hayyi2/react-shadcn-starter",
     },
     author: {
-        name: "Varsha Kakaumanu",
+        name: "Etv Bharat",
         url: "https://github.com/VarshaKakumanu/web-Etv",
     }
 }
