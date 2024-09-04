@@ -236,7 +236,7 @@ const Login = () => {
                             cursor: "pointer",
                           }}
                         >
-                          {showPassword ? (
+                          {!showPassword ? (
                             <Icons.closeEye />
                           ) : (
                             <Icons.openEye />
