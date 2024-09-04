@@ -1,24 +1,31 @@
-<<<<<<< Dockerfile
-# Step 1: Build the React app with Vite
-FROM node:20 as build
+# Use an official Node.js runtime as a parent image
+FROM node:20-alpine
 
-# Set working directory
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/src/reportersapp
 
-# Copy package.json and package-lock.json (if available)
+# Copy package.json and package-lock.json for dependency installation
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install the dependencies
+RUN npm install \
 
-# Copy the rest of the application code
+    && npm install --save-dev vite @vitejs/plugin-react
+
+# Copy the rest of the application files
 COPY . .
 
-# Build the application
+# Build the React application
 RUN npm run build
 
-# Step 2: Serve the React app on port 5173 using Vite
-EXPOSE 5173
+# Create the _redirects file for SPA routing
+RUN echo '/* /index.html 200' > dist/_redirects
 
-# Start the Vite server in preview mode to serve the app
-CMD ["npm", "run", "preview"]
+# Install serve globally
+RUN npm install -g serve
+
+# Expose the port where the application will run
+EXPOSE 3000
+
+# Command to serve the application
+CMD ["serve", "-s", "dist", "-l", "3000"]
