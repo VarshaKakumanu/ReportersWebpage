@@ -92,10 +92,7 @@ const Login = () => {
   
     axios.post(`${BASE_URL}users/v1/checklogin`, params, {
       headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-        Expires: "0",
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     })
       .then(response => {
