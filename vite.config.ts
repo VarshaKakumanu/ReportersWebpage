@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/',
   optimizeDeps: {
     include: ["prop-types"], // Ensure prop-types is pre-bundled
   },
