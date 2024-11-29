@@ -1,21 +1,30 @@
-# Step 1: Use Node.js to build the application
-FROM node:18 as builder
-WORKDIR /usr/src/app
+# Use an official Node.js runtime as a parent image
+FROM node:20-alpine
 
-# Copy package.json and install dependencies
-COPY package.json package-lock.json ./
-RUN npm install
+# Set the working directory inside the container
+WORKDIR /usr/src/reportersapp
 
-# Copy the source code and build the app
+# Copy package.json and package-lock.json for dependency installation
+COPY package*.json ./
+
+# Install the dependencies
+RUN npm install \
+    && npm install --save-dev vite @vitejs/plugin-react
+
+# Copy the rest of the application files
 COPY . .
+
+# Build the React application
 RUN npm run build
 
-# Step 2: Use Nginx to serve the built files
-FROM nginx:alpine
-COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
+# Create the _redirects file for SPA routing
+RUN echo '/* /index.html 200' > dist/_redirects
 
-# Expose port 80 for serving
-EXPOSE 80
+# Install serve globally
+RUN npm install -g serve
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Expose the port where the application will run
+EXPOSE 3000
+
+# Use the following CMD to serve the app on all interfaces (0.0.0.0)
+CMD ["serve", "-s", "dist", "-l", "0.0.0.0:3000", "--single"]
