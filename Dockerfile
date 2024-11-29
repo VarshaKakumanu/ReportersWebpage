@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Install the dependencies
 RUN npm install \
+
     && npm install --save-dev vite @vitejs/plugin-react
 
 # Copy the rest of the application files
@@ -26,5 +27,5 @@ RUN npm install -g serve
 # Expose the port where the application will run
 EXPOSE 3000
 
-# Use the following CMD to serve the app on all interfaces (0.0.0.0)
-CMD ["serve", "-s", "dist", "-l", "0.0.0.0:3000", "--single"]
+# Command to serve the application
+CMD ["serve", "-s", "dist", "-l", "3000", "--single"]
