@@ -237,11 +237,12 @@ const Login = () => {
                           }}
                         >
                           {!showPassword ? (
-                            <Icons.closeEye />
-                          ) : (
                             <Icons.openEye />
+                          ) : (
+                            <Icons.closeEye />
                           )}
                         </button>
+                        
                       </div>
                     </FormControl>
                     <FormDescription className="flex gap-2">
