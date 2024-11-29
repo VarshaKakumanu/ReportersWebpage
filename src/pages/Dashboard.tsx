@@ -7,6 +7,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
 import { BASE_URL } from '@/config/app';
+import { useNavigate } from 'react-router-dom';
 
 // Define the data type for articles
 export type Payment = {
@@ -28,7 +29,7 @@ const Dashboard: React.FC = () => {
     return `Basic ${encodedCredentials}`;
   };
   const ArticlesFalg = useSelector((state:any)=>state.articleFlag)
-
+const navigate = useNavigate();
 
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
@@ -69,12 +70,17 @@ const Dashboard: React.FC = () => {
         setLoading(false);  // Set loading to false after data is fetched
       })
       .catch((error) => {
-        console.log(error,"error.messageDashboard")
-        setError("Error fetching articles");
+        if(error.status !== 200){
+          localStorage.clear();
+          navigate('/')
+        }else{
+          setError(error.response.data.message);
         toast("Error fetching articles:", {
-          description: error.message
+          description: error.response.data.message
         });
-        setLoading(false);  // Set loading to false even if there's an error
+        setLoading(false); 
+        }
+         // Set loading to false even if there's an error
       });
   }, [ArticlesFalg]);
 
