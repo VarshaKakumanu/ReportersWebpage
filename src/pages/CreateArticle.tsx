@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import JoditEditor from "jodit-pro-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as tus from "tus-js-client";
 import axios from "axios";
@@ -22,6 +21,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -67,10 +67,7 @@ const CreateArticle = () => {
     formState: { errors },
   } = form;
 
-  const config = {
-    readonly: false,
-    toolbar: false,
-  };
+
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +79,8 @@ const CreateArticle = () => {
 
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
-    const encodedCredentials = btoa(credentials); // Encode credentials to Base64
+    const encodedCredentials = btoa(credentials);
+    console.log("Auth Header:", `Basic ${encodedCredentials}`); // Debug log
     return `Basic ${encodedCredentials}`;
   };
 
@@ -227,49 +225,70 @@ const CreateArticle = () => {
 
   const handleFileChangeImage = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-      if (file && file.type.startsWith("image/")) {
-        setImageFile(file); // Set image file separately
+      const file:any = e?.target?.files?.[0] || null;
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          toast.error("Only image files are allowed.");
+          return;
+        }
+        console.log("Selected file:", file); // Debug log
+        setImageFile(file); // Set image file
         setImageFileInputKey(Date.now()); // Ensure the key is updated
+      } else {
+        console.log("No file selected.");
+      }
+      if (!file.type.startsWith("image/")) {
+        toast.error("Invalid file type. Only images are allowed.");
+        return;
       }
     },
     []
   );
+  
 
   const handleImageUpload = useCallback(() => {
-    if (!imageFile) return; // Use imageFile instead of selectedFile
+    if (!imageFile) {
+      toast.error("No image file selected.");
+      return;
+    }
+  
     setLoadingImg(true);
     const authHeader = createBasicAuthHeader();
-
-    const formData = new FormData(); // Create a new FormData object
-    formData.append("file", imageFile); // Append the image file to the FormData
-
+  
+    const formData = new FormData();
+    formData.append("file", imageFile);
+  
+    console.log("Uploading file:", imageFile); // Debug log
+    console.log("FormData content:", formData.get("file")); // Debug log
+  
     axios
       .post(
         `${BASE_URL}wp/v2/media`, // Replace with your actual endpoint
-        formData, // Send the FormData object
+        formData,
         {
           headers: {
-            "Content-Type": imageFile.type, // Set the content type to the file's type
+            "Content-Type": "multipart/form-data",
             Authorization: authHeader,
           },
         }
       )
-      .then((response) => {
-        const imageUrl = response.data.source_url; // Get the URL from the API response
+      .then((response:any) => {
+        console.log("API Response:", response); // Debug log
+        const imageUrl = response?.data?.source_url;
         const currentContent = getValues("content");
         const updatedContent = `${currentContent}<div class="image-container"><img src="${imageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
-        setValue("content", updatedContent); // Update the content in the form
+        setValue("content", updatedContent);
         toast.success("Image uploaded successfully!");
-        setImageFile(null); // Clear the image file state
+        setImageFile(null);
       })
-      .catch((error) => {
-        toast.error("Error uploading image:", error.message);
+      .catch((error:any) => {
+        toast.error(error);
       })
       .finally(() => {
         setLoadingImg(false);
       });
   }, [imageFile, getValues, setValue]);
+  
 
   const handleEditorChange = (newContent: string) => {
     setValue("content", newContent);
@@ -307,20 +326,26 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-              <FormItem>
-                <FormLabel>Content</FormLabel>
-                <FormControl>
-                  <JoditEditor
-                    ref={editor}
-                    value={getValues("content")}
-                    config={config}
-                    onChange={handleEditorChange}
-                  />
-                </FormControl>
-                <FormMessage>
-                  {errors.content && errors.content.message}
-                </FormMessage>
-              </FormItem>
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        ref={editor}
+                        value={getValues("content")}
+                        onChange={(e) => handleEditorChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage>
+                      {errors.content && errors.content.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
               <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
                   <FormLabel>Upload video</FormLabel>
@@ -374,17 +399,14 @@ const CreateArticle = () => {
                       />
                     </FormControl>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={handleImageUpload}
-                  >
+                  <Button type="button" onClick={handleImageUpload}>
                     {loadingImg ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Uploading...
                       </>
                     ) : (
-                     <p>Upload Image</p>
+                      <p>Upload Image</p>
                     )}
                   </Button>
                 </FormItem>

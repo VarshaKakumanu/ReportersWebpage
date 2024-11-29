@@ -237,9 +237,9 @@ const Login = () => {
                           }}
                         >
                           {!showPassword ? (
-                            <Icons.closeEye />
-                          ) : (
                             <Icons.openEye />
+                          ) : (
+                            <Icons.closeEye />
                           )}
                         </button>
                       </div>
