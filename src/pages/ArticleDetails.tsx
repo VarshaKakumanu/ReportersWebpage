@@ -46,6 +46,7 @@ export default function ArticleDetail() {
         setLoading(false);
       })
       .catch((error) => {
+          console.log(error.message,"error.messageArticle")
         toast.error("Error fetching articles:", {
           description: error.message,
         });

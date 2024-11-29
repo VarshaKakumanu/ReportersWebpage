@@ -144,6 +144,7 @@ const CreateArticle = () => {
           userDetails?.id.toString()
       )
       .catch((error) => {
+        console.log(error.message,"error.messageCREate")
         toast.error("Error fetching articles:", {
           description: error.message,
         });
@@ -282,7 +283,7 @@ const CreateArticle = () => {
         setImageFile(null);
       })
       .catch((error:any) => {
-        toast.error(error);
+        toast.error(error.data);
       })
       .finally(() => {
         setLoadingImg(false);
