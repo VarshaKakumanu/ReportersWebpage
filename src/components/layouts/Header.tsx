@@ -17,7 +17,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { mainMenu } from "@/config/menu";
 import { ChevronDownIcon, ViewVerticalIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Logo } from "../logo";
 import {
   Accordion,
   AccordionContent,
@@ -40,7 +39,7 @@ export function Header() {
       <div className="container px-4 md:px-8 flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <NavLink to="/" className="mr-6 flex items-center space-x-2">
-            <Logo />
+          <Icons.logo className="w-8 h-8" /> <p className="font-bold text-base ">ETV Bharat</p>
           </NavLink>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {mainMenu.map((menu, index) =>
@@ -120,7 +119,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="flex items-center space-x-2"
             >
-              <Logo />
+                      <Icons.logo className="w-8 h-8" /> <p className="font-bold text-base ">ETV Bharat</p>
             </NavLink>
             <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-8 pl-8">
               <Accordion
@@ -210,7 +209,7 @@ export function Header() {
           </SheetContent>
         </Sheet>
         <a href="/" className="mr-6 flex items-center space-x-2 md:hidden">
-          <Icons.logo className="h-6 w-6" />
+        <Icons.logo className="w-8 h-8" /> <p className="font-bold text-base ">ETV Bharat</p>
           <span className="font-bold inline-block">{appConfig.name}</span>
         </a>
         {/* right */}

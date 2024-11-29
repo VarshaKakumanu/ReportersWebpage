@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/Redux/reducers/login";
 import axios from "axios";
@@ -53,7 +53,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-
+const navigate = useNavigate();
   const [params, setParams] = useState<{
     msg?: string;
     email?: string;
@@ -120,22 +120,29 @@ const Login = () => {
       .then(userResponse => {
         const userResult = userResponse?.data;
   
-        if (userResult?.username) {
+        if (userResult?.username && userResponse.status == 200) {
           const loginParamDispatch = Array.from(params.entries());
           dispatch(loginPram(loginParamDispatch));
           dispatch(updateUserDetails(userResult));
           dispatch(loggedIn(true));
           window.location.href = "/";
         } else {
+          console.log(userResponse,"userResponse")
           throw new Error("Invalid username or password");
+          localStorage.clear();
+          navigate('/')
         }
       })
       .catch(error => {
-        console.log(error);
+        if(error.status !== 200){
+          localStorage.clear();
+          navigate('/')
+        }else{
         toast("Failed to login", {
           description: error?.response?.data?.message,
         });
         dispatch(loggedIn(false));
+      }
       })
       .finally(() => {
         setLoading(false);
@@ -151,7 +158,7 @@ const Login = () => {
         {params.msg === "credentials" && params.email && params.pwd && (
           <Alert>
             <Terminal className="h-4 w-4" />
-            <AlertTitle>Login Details</AlertTitle>
+            <AlertTitle> Login Details</AlertTitle>
             <AlertDescription>
               Your credentials have been provided: <br />
               <strong>Email:</strong> {params.email} <br />
@@ -191,7 +198,7 @@ const Login = () => {
             <div className="flex justify-center items-center text-2xl md:hidden">
               Etv Bharat
             </div>
-            <div className="flex md:justify-center">Login</div>
+            <div className="flex md:justify-center gap-2"><Icons.logo className="w-8 h-8" /> Login</div>
           </h2>
 
           <Form {...form}>
