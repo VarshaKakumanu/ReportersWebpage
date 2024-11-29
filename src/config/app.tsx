@@ -14,11 +14,11 @@ export const appConfig: AppConfig = {
     name: "Etv Bharat",
     github: {
         title: "React Shadcn Starter",
-        url: "https://github.com/hayyi2/react-shadcn-starter",
+        url: "https://www.etvbharat.com/",
     },
     author: {
         name: "Etv Bharat",
-        url: "https://github.com/VarshaKakumanu/web-Etv",
+        url: "https://www.etvbharat.com/",
     }
 }
 

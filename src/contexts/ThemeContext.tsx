@@ -26,7 +26,7 @@ export function ThemeProvider({
     ...props
 }: ThemeProviderProps) {
     const [theme, setTheme] = useState(
-        () => localStorage.getItem(storageKey) ?? defaultTheme
+        () => sessionStorage.getItem(storageKey) ?? defaultTheme
     )
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export function ThemeProvider({
         <ThemeProviderContext.Provider {...props} value={{
             theme,
             setTheme: (theme: string) => {
-                localStorage.setItem(storageKey, theme)
+                sessionStorage.setItem(storageKey, theme)
                 setTheme(theme)
             },
         }}>

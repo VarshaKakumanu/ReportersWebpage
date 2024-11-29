@@ -100,7 +100,7 @@ const Login = () => {
   
         if (result) {
           dispatch(loginDataDetails(result));
-          localStorage.setItem("access_token", result);
+          sessionStorage.setItem("access_token", result);
   
           return axios.get(`${BASE_URL}users/v1/checkUser?${paramsCheck}`, {
             headers: {
@@ -144,7 +144,7 @@ const Login = () => {
   
 
   return (
-    <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-evenly h-screen p-4">
+    <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-center h-screen p-4">
     <div className="flex ml-auto"> <ModeToggle /></div>
     
       <div>
@@ -242,7 +242,7 @@ const Login = () => {
                             <Icons.closeEye />
                           )}
                         </button>
-                        
+
                       </div>
                     </FormControl>
                     <FormDescription className="flex gap-2">
