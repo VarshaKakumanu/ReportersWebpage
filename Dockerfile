@@ -1,4 +1,4 @@
-# Use an official Node.js runtime as a parent image
+# Step 1: Use an official Node.js runtime as the base image
 FROM node:20-alpine
 
 # Set the working directory inside the container
@@ -8,9 +8,7 @@ WORKDIR /usr/src/reportersapp
 COPY package*.json ./
 
 # Install the dependencies
-RUN npm install \
-
-    && npm install --save-dev vite @vitejs/plugin-react
+RUN npm install
 
 # Copy the rest of the application files
 COPY . .
@@ -18,14 +16,8 @@ COPY . .
 # Build the React application
 RUN npm run build
 
-# Create the _redirects file for SPA routing
-RUN echo '/* /index.html 200' > dist/_redirects
-
-# Install serve globally
-RUN npm install -g serve
-
 # Expose the port where the application will run
 EXPOSE 3000
 
-# Command to serve the application
-CMD ["serve", "-s", "dist", "-l", "3000", "--single"]
+# Command to serve the application using `serve`
+CMD ["npx", "serve", "-s", "dist", "-l", "3000"]
