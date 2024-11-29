@@ -1,23 +1,21 @@
-# Step 1: Use an official Node.js runtime as the base image
-FROM node:20-alpine
+# Step 1: Use Node.js to build the application
+FROM node:18 as builder
+WORKDIR /usr/src/app
 
-# Set the working directory inside the container
-WORKDIR /usr/src/reportersapp
-
-# Copy package.json and package-lock.json for dependency installation
-COPY package*.json ./
-
-# Install the dependencies
+# Copy package.json and install dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy the rest of the application files
+# Copy the source code and build the app
 COPY . .
-
-# Build the React application
 RUN npm run build
 
-# Expose the port where the application will run
-EXPOSE 3000
+# Step 2: Use Nginx to serve the built files
+FROM nginx:alpine
+COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 
-# Command to serve the application using `serve`
-CMD ["npx", "serve", "-s", "dist", "-l", "3000"]
+# Expose port 80 for serving
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
