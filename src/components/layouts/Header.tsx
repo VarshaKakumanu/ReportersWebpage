@@ -244,7 +244,7 @@ export function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    sessionStorage.clear();
+                    localStorage.clear();
                     dispatch(loggedIn(false));
                     navigate("/login");
                   }}

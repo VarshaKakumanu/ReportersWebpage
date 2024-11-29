@@ -69,6 +69,7 @@ const Dashboard: React.FC = () => {
         setLoading(false);  // Set loading to false after data is fetched
       })
       .catch((error) => {
+        console.log(error,"error.messageDashboard")
         setError("Error fetching articles");
         toast("Error fetching articles:", {
           description: error.message

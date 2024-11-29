@@ -100,7 +100,7 @@ const Login = () => {
   
         if (result) {
           dispatch(loginDataDetails(result));
-          sessionStorage.setItem("access_token", result);
+          localStorage.setItem("access_token", result);
   
           return axios.get(`${BASE_URL}users/v1/checkUser?${paramsCheck}`, {
             headers: {
