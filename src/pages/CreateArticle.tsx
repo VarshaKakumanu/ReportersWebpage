@@ -332,26 +332,36 @@ const CreateArticle = () => {
     <FormItem>
       <FormLabel>Content</FormLabel>
       <FormControl>
-        <Editor
-          apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9" // Your TinyMCE API Key
-          value={field.value} // Bind form content to the editor
+      <Editor
+      apiKey='r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9'
+      value={field.value} // Bind form content to the editor
           onEditorChange={(content: string) => {
             field.onChange(content); // Sync TinyMCE content with the form
           }}
-          init={{
-            height: 400,
-            menubar: false,
-            plugins: [
-              "advlist autolink lists link image charmap preview anchor",
-              "searchreplace visualblocks code fullscreen",
-              "insertdatetime media table paste code help wordcount",
-            ],
-            toolbar:
-              "undo redo | formatselect | bold italic backcolor | \
-              alignleft aligncenter alignright alignjustify | \
-              bullist numlist outdent indent | removeformat | help",
-          }}
-        />
+          
+      init={{
+        plugins: [
+          // Core editing features
+          'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+          // Your account includes a free trial of TinyMCE premium features
+          // Try the most popular premium features until Dec 17, 2024:
+          'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown',
+          // Early access to document converters
+          'importword', 'exportword', 'exportpdf'
+        ],
+        toolbar: false,
+        tinycomments_mode: 'embedded',
+        tinycomments_author: 'Author name',
+        mergetags_list: [
+          { value: 'First.Name', title: 'First Name' },
+          { value: 'Email', title: 'Email' },
+        ],
+        ai_request: ( respondWith:any) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+      }}
+    
+
+    />
+       
       </FormControl>
       <FormMessage>{errors.content && errors.content.message}</FormMessage>
     </FormItem>
