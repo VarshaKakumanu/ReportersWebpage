@@ -80,7 +80,6 @@ const CreateArticle = () => {
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials);
-    console.log("Auth Header:", `Basic ${encodedCredentials}`); // Debug log
     return `Basic ${encodedCredentials}`;
   };
 
@@ -147,7 +146,6 @@ const CreateArticle = () => {
           userDetails?.id.toString()
       )
       .catch((error) => {
-        console.log(error.message,"error.messageCREate")
         toast.error("Error fetching articles:", {
           description: error.message,
         });
@@ -202,7 +200,6 @@ const CreateArticle = () => {
 
     // Using exec() to match the content
     const matchResult = videoTagRegex.exec(contentWithVideo);
-    console.log(matchResult);
     if (matchResult) {
       const videoUrl = matchResult[1]; // Extract the video URL
       const fileType = matchResult[2].split("/")[1]; // Extract the file type (e.g., "mp4")
@@ -215,9 +212,6 @@ const CreateArticle = () => {
         videoTagRegex,
         customVideoTag
       );
-
-      console.log(contentWithVideo, data.title, "contentWithVideo");
-
       // Now you can proceed with making the API call
       makeArticleAPICall(data.title, contentForApiCall);
     } else {
@@ -235,11 +229,10 @@ const CreateArticle = () => {
           toast.error("Only image files are allowed.");
           return;
         }
-        console.log("Selected file:", file); // Debug log
         setImageFile(file); // Set image file
         setImageFileInputKey(Date.now()); // Ensure the key is updated
       } else {
-        console.log("No file selected.");
+        toast.error("No file selected.");
       }
       if (!file.type.startsWith("image/")) {
         toast.error("Invalid file type. Only images are allowed.");
@@ -262,9 +255,6 @@ const CreateArticle = () => {
     const formData = new FormData();
     formData.append("file", imageFile);
   
-    console.log("Uploading file:", imageFile); // Debug log
-    console.log("FormData content:", formData.get("file")); // Debug log
-  
     axios
       .post(
         `${BASE_URL}wp/v2/media`, // Replace with your actual endpoint
@@ -277,7 +267,6 @@ const CreateArticle = () => {
         }
       )
       .then((response:any) => {
-        console.log("API Response:", response); // Debug log
         const imageUrl = response?.data?.source_url;
         const currentContent = getValues("content");
         const updatedContent = `${currentContent}<div class="image-container"><img src="${imageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
