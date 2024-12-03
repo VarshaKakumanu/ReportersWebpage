@@ -349,6 +349,7 @@ const CreateArticle = () => {
           // Early access to document converters
           'importword', 'exportword', 'exportpdf'
         ],
+        readOnly: false,
         toolbar: false,
         tinycomments_mode: 'embedded',
         tinycomments_author: 'Author name',
@@ -358,10 +359,7 @@ const CreateArticle = () => {
         ],
         ai_request: ( respondWith:any) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
       }}
-    
-
     />
-       
       </FormControl>
       <FormMessage>{errors.content && errors.content.message}</FormMessage>
     </FormItem>
