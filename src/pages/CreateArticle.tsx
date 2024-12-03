@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
-import { Textarea } from "@/components/ui/textarea";
+import { Editor } from "@tinymce/tinymce-react";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -30,6 +30,7 @@ const formSchema = z.object({
     .min(2, "Title must be at least 2 characters")
     .max(100, "Title must be at most 100 characters"),
   content: z.string().min(10, "Content must be at least 10 characters"),
+  // content:z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -53,7 +54,6 @@ const CreateArticle = () => {
   const [isUploadRunning, setIsUploadRunning] = useState(false);
   const [upload] = useState<tus.Upload | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const editor = useRef(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
   const userDetails = useSelector((state: any) => state?.userDetails);
@@ -86,8 +86,10 @@ const CreateArticle = () => {
 
   const startUpload = useCallback(() => {
     if (!selectedFile) return;
+    setVideoUrl(null); 
     const upload = new tus.Upload(selectedFile, {
       endpoint: "http://test.kb.etvbharat.com/wp-tus?curtime=" + curtime,
+      chunkSize: 5 * 1024 * 1024,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       metadata: {
         filename: selectedFile.name,
@@ -111,8 +113,9 @@ const CreateArticle = () => {
       onSuccess: () => {
         let final_uploaded_url =
           s3_base_url + curtime + "/" + selectedFile?.name;
+          setVideoUrl(final_uploaded_url);
         if (upload.file instanceof File) {
-          setVideoUrl(upload.url || null);
+          setVideoUrl(upload.url);
           const CurrentContent = getValues("content");
           const newContent = `${CurrentContent}
  <div class="video-container">
@@ -291,11 +294,6 @@ const CreateArticle = () => {
   }, [imageFile, getValues, setValue]);
   
 
-  const handleEditorChange = (newContent: string) => {
-    setValue("content", newContent);
-    console.log(newContent, "newContent");
-  };
-
   useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response) => {
       const S3Url = response?.data?.s3_base;
@@ -327,26 +325,40 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        ref={editor}
-                        value={getValues("content")}
-                        onChange={(e) => handleEditorChange(e.target.value)}
-                      />
-                    </FormControl>
-                    <FormMessage>
-                      {errors.content && errors.content.message}
-                    </FormMessage>
-                  </FormItem>
-                )}
-              />
+<FormField
+  control={form.control}
+  name="content"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Content</FormLabel>
+      <FormControl>
+        <Editor
+          apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9" // Your TinyMCE API Key
+          value={field.value} // Bind form content to the editor
+          onEditorChange={(content: string) => {
+            field.onChange(content); // Sync TinyMCE content with the form
+          }}
+          init={{
+            height: 400,
+            menubar: false,
+            plugins: [
+              "advlist autolink lists link image charmap preview anchor",
+              "searchreplace visualblocks code fullscreen",
+              "insertdatetime media table paste code help wordcount",
+            ],
+            toolbar:
+              "undo redo | formatselect | bold italic backcolor | \
+              alignleft aligncenter alignright alignjustify | \
+              bullist numlist outdent indent | removeformat | help",
+          }}
+        />
+      </FormControl>
+      <FormMessage>{errors.content && errors.content.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
+
               <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
                   <FormLabel>Upload video</FormLabel>
@@ -391,6 +403,7 @@ const CreateArticle = () => {
                   <div className="flex flex-col space-y-2 w-full">
                     <FormLabel> Upload Image</FormLabel>
                     <FormControl>
+                    
                       <Input
                         key={imageFileInputKey}
                         type="file"
