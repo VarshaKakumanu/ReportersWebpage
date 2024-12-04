@@ -25,12 +25,8 @@ import { Editor } from "@tinymce/tinymce-react";
 
 // Define the schema for form validation
 const formSchema = z.object({
-  title: z
-    .string()
-    .min(2, "Title must be at least 2 characters")
-    .max(100, "Title must be at most 100 characters"),
+  title: z.string().min(2, "Title must be at least 2 characters"),
   content: z.string().min(10, "Content must be at least 10 characters"),
-  // content:z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -67,8 +63,6 @@ const CreateArticle = () => {
     formState: { errors },
   } = form;
 
-
-
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0] || null;
@@ -85,7 +79,7 @@ const CreateArticle = () => {
 
   const startUpload = useCallback(() => {
     if (!selectedFile) return;
-    setVideoUrl(null); 
+    setVideoUrl(null);
     const upload = new tus.Upload(selectedFile, {
       endpoint: "http://test.kb.etvbharat.com/wp-tus?curtime=" + curtime,
       chunkSize: 5 * 1024 * 1024,
@@ -112,7 +106,7 @@ const CreateArticle = () => {
       onSuccess: () => {
         let final_uploaded_url =
           s3_base_url + curtime + "/" + selectedFile?.name;
-          setVideoUrl(final_uploaded_url);
+        setVideoUrl(final_uploaded_url);
         if (upload.file instanceof File) {
           setVideoUrl(upload.url);
           const CurrentContent = getValues("content");
@@ -223,7 +217,7 @@ const CreateArticle = () => {
 
   const handleFileChangeImage = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file:any = e?.target?.files?.[0] || null;
+      const file: any = e?.target?.files?.[0] || null;
       if (file) {
         if (!file.type.startsWith("image/")) {
           toast.error("Only image files are allowed.");
@@ -241,20 +235,19 @@ const CreateArticle = () => {
     },
     []
   );
-  
 
   const handleImageUpload = useCallback(() => {
     if (!imageFile) {
       toast.error("No image file selected.");
       return;
     }
-  
+
     setLoadingImg(true);
     const authHeader = createBasicAuthHeader();
-  
+
     const formData = new FormData();
     formData.append("file", imageFile);
-  
+
     axios
       .post(
         `${BASE_URL}wp/v2/media`, // Replace with your actual endpoint
@@ -266,7 +259,7 @@ const CreateArticle = () => {
           },
         }
       )
-      .then((response:any) => {
+      .then((response: any) => {
         const imageUrl = response?.data?.source_url;
         const currentContent = getValues("content");
         const updatedContent = `${currentContent}<div class="image-container"><img src="${imageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
@@ -274,14 +267,13 @@ const CreateArticle = () => {
         toast.success("Image uploaded successfully!");
         setImageFile(null);
       })
-      .catch((error:any) => {
+      .catch((error: any) => {
         toast.error(error.data);
       })
       .finally(() => {
         setLoadingImg(false);
       });
   }, [imageFile, getValues, setValue]);
-  
 
   useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response) => {
@@ -314,57 +306,99 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-<FormField
-  control={form.control}
-  name="content"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Content</FormLabel>
-      <FormControl>
-      <Editor
-      apiKey='r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9'
-      value={field.value} // Bind form content to the editor
-          onEditorChange={(content: string) => {
-            field.onChange(content); // Sync TinyMCE content with the form
-          }}
-          
-      init={{
-        plugins: [
-          // Core editing features
-          'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-          // Your account includes a free trial of TinyMCE premium features
-          // Try the most popular premium features until Dec 17, 2024:
-          'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown',
-          // Early access to document converters
-          'importword', 'exportword', 'exportpdf'
-        ],
-        readOnly: false,
-        toolbar: false,
-        tinycomments_mode: 'embedded',
-        tinycomments_author: 'Author name',
-        mergetags_list: [
-          { value: 'First.Name', title: 'First Name' },
-          { value: 'Email', title: 'Email' },
-        ],
-        ai_request: ( respondWith:any) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-      }}
-    />
-      </FormControl>
-      <FormMessage>{errors.content && errors.content.message}</FormMessage>
-    </FormItem>
-  )}
-/>
-
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content</FormLabel>
+                    <FormControl>
+                      <Editor
+                        apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
+                        value={field.value} // Bind form content to the editor
+                        onEditorChange={(content: string) => {
+                          field.onChange(content); // Sync TinyMCE content with the form
+                        }}
+                        init={{
+                          plugins: [
+                            // Core editing features
+                            "anchor",
+                            "autolink",
+                            "charmap",
+                            "codesample",
+                            "emoticons",
+                            "image",
+                            "link",
+                            "lists",
+                            "media",
+                            "searchreplace",
+                            "table",
+                            "visualblocks",
+                            "wordcount",
+                            // Your account includes a free trial of TinyMCE premium features
+                            // Try the most popular premium features until Dec 17, 2024:
+                            "checklist",
+                            "mediaembed",
+                            "casechange",
+                            "export",
+                            "formatpainter",
+                            "pageembed",
+                            "a11ychecker",
+                            "tinymcespellchecker",
+                            "permanentpen",
+                            "powerpaste",
+                            "advtable",
+                            "advcode",
+                            "editimage",
+                            "advtemplate",
+                            "ai",
+                            "mentions",
+                            "tinycomments",
+                            "tableofcontents",
+                            "footnotes",
+                            "mergetags",
+                            "autocorrect",
+                            "typography",
+                            "inlinecss",
+                            "markdown",
+                            // Early access to document converters
+                            "importword",
+                            "exportword",
+                            "exportpdf",
+                          ],
+                          readOnly: false,
+                          toolbar: false,
+                          tinycomments_mode: "embedded",
+                          tinycomments_author: "Author name",
+                          mergetags_list: [
+                            { value: "First.Name", title: "First Name" },
+                            { value: "Email", title: "Email" },
+                          ],
+                          ai_request: (respondWith: any) =>
+                            respondWith.string(() =>
+                              Promise.reject(
+                                "See docs to implement AI Assistant"
+                              )
+                            ),
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage>
+                      {errors.content && errors.content.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
 
               <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
-                  <FormLabel>Upload video</FormLabel>
+                  <FormLabel>Upload Video</FormLabel>
                   <FormControl>
                     <Input
                       key={fileInputKey}
-                      id="picture"
                       className="bg-slate-400"
                       type="file"
+                      accept="video/*" // Restrict to all video formats
                       onChange={handleFileChange}
                       autoFocus={true}
                     />
@@ -380,6 +414,7 @@ const CreateArticle = () => {
                     <Progress value={uploadPercentage} />
                   </div>
                 )}
+
                 <Button
                   type="button"
                   onClick={startUpload}
@@ -391,20 +426,20 @@ const CreateArticle = () => {
                       Uploading...
                     </>
                   ) : (
-                    "Upload video"
+                    "Upload Video"
                   )}
                 </Button>
               </FormItem>
+
               <FormItem>
                 <FormItem className="flex space-y-4 gap-2">
                   <div className="flex flex-col space-y-2 w-full">
                     <FormLabel> Upload Image</FormLabel>
                     <FormControl>
-                    
                       <Input
                         key={imageFileInputKey}
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.gif,.tiff,.bmp,.webp,.avif"
                         onChange={handleFileChangeImage}
                         autoFocus={true}
                       />

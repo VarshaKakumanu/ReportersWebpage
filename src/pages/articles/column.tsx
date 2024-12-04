@@ -83,9 +83,9 @@ export const columns: ColumnDef<Payment>[] = [
   
   <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll">
     <DialogHeader className="grid" >
-      <DialogTitle dangerouslySetInnerHTML={{ __html:payment?.title}}></DialogTitle>
+    <DialogTitle>{payment?.title}</DialogTitle>
       <DialogDescription>
-      <p className="grid"  dangerouslySetInnerHTML={{ __html:payment?.content}}></p>
+      {payment?.content}
       </DialogDescription>
     </DialogHeader>
   </DialogContent>
