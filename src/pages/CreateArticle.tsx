@@ -64,9 +64,13 @@ const CreateArticle = () => {
   } = form;
 
   const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-      setSelectedFile(file);
+    (e: any) => {
+      const file:any = e?.target?.files?.[0];
+      if(file){    setSelectedFile(file);
+      }else{
+        toast('File not Found')
+      }
+   console.log(file,"handleFileChange")
     },
     []
   );
@@ -78,14 +82,16 @@ const CreateArticle = () => {
   };
 
   const startUpload = useCallback(() => {
+    console.log(selectedFile,"StartUpload")
     if (!selectedFile) return;
+    
     setVideoUrl(null);
     const upload = new tus.Upload(selectedFile, {
       endpoint: "http://test.kb.etvbharat.com/wp-tus?curtime=" + curtime,
       chunkSize: 5 * 1024 * 1024,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       metadata: {
-        filename: selectedFile.name,
+        filename: selectedFile?.name,
         filetype: selectedFile?.type,
       },
       onError: (error: any) => {
@@ -106,6 +112,7 @@ const CreateArticle = () => {
       onSuccess: () => {
         let final_uploaded_url =
           s3_base_url + curtime + "/" + selectedFile?.name;
+          console.log(final_uploaded_url,"url in video tag")
         setVideoUrl(final_uploaded_url);
         if (upload.file instanceof File) {
           setVideoUrl(upload.url);
@@ -117,6 +124,7 @@ const CreateArticle = () => {
     Your browser does not support the video tag.
   </video>
 </div>`;
+console.log(newContent,"onsucess content")
           setValue("content", newContent);
         }
         makeMediaAPICall(final_uploaded_url);

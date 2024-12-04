@@ -66,34 +66,21 @@ export const columns: ColumnDef<Payment>[] = [
       const payment = row.original;
      
       return (
-        // <DropdownMenu>
-        //   <DropdownMenuTrigger asChild>
-        //     <Button variant="ghost" className="h-8 w-8 p-0">
-        //       <span className="sr-only">Open menu</span>
-        //       <MoreHorizontal className="h-4 w-4" />
-        //     </Button>
-        //   </DropdownMenuTrigger>
-        //   <DropdownMenuContent align="end">
-        //   <DropdownMenuItem>
+
 
 <Dialog>
   
   <DialogTrigger > <Button variant="outline" onClick={() => { 
     navigator.clipboard.writeText(payment.id.toString())}}>view</Button></DialogTrigger>
-  
   <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll">
     <DialogHeader className="grid" >
-    <DialogTitle>{payment?.title}</DialogTitle>
+      <DialogTitle dangerouslySetInnerHTML={{ __html:payment?.title}}></DialogTitle>
       <DialogDescription>
-      {payment?.content}
+      <p className="grid"  dangerouslySetInnerHTML={{ __html:payment?.content}}></p>
       </DialogDescription>
     </DialogHeader>
   </DialogContent>
 </Dialog>
-
-        //     </DropdownMenuItem>
-        //   </DropdownMenuContent>
-        // </DropdownMenu>
       );
     },
   },

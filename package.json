@@ -37,6 +37,7 @@
     "class-variance-authority": "^0.6.1",
     "clsx": "^1.2.1",
     "dompurify": "^3.1.6",
+    "he": "^1.2.0",
     "lucide-react": "^0.258.0",
     "next-themes": "^0.2.1",
     "purgecss": "^7.0.2",
