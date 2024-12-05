@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CreateArticle from "./CreateArticle";
 import { DataTable } from "./articles/data-table";
 import {  columns } from "./articles/column";
 import axios from 'axios';
@@ -8,6 +7,7 @@ import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
 import { BASE_URL } from '@/config/app';
 import { useNavigate } from 'react-router-dom';
+import CreateArticle from './CreateArticle';
 
 // Define the data type for articles
 export type Payment = {

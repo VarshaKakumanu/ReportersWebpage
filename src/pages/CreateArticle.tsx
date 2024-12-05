@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
+import { Icons } from "@/components/icons";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -410,11 +411,11 @@ const CreateArticle = () => {
 
               <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
-                  <FormLabel>Upload Video</FormLabel>
+                  <FormLabel>Video</FormLabel>
                   <FormControl>
                     <Input
                       key={fileInputKey}
-                      className="bg-slate-400"
+                      className="bg-slate-200"
                       type="file"
                       accept="video/*" // Restrict to all video formats
                       onChange={handleFileChange}
@@ -441,10 +442,10 @@ const CreateArticle = () => {
                   {isUploadRunning ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                     
                     </>
                   ) : (
-                    "Upload Video"
+                    <Icons.upLoad />
                   )}
                 </Button>
               </FormItem>
@@ -452,25 +453,26 @@ const CreateArticle = () => {
               <FormItem>
                 <FormItem className="flex space-y-4 gap-2">
                   <div className="flex flex-col space-y-2 w-full">
-                    <FormLabel> Upload Image</FormLabel>
+                    <FormLabel> Image</FormLabel>
                     <FormControl>
                       <Input
                         key={imageFileInputKey}
+                        className="bg-slate-200"
                         type="file"
                         accept=".jpg,.jpeg,.png,.gif,.tiff,.bmp,.webp,.avif"
                         onChange={handleFileChangeImage}
                         autoFocus={true}
+                      
                       />
                     </FormControl>
                   </div>
-                  <Button type="button" onClick={handleImageUpload}>
+                  <Button type="button" onClick={handleImageUpload}   disabled={!imageFile || loadingImg}>
                     {loadingImg ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
                       </>
                     ) : (
-                      <p>Upload Image</p>
+                    <Icons.upLoad />
                     )}
                   </Button>
                 </FormItem>
