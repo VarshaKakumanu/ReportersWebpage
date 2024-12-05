@@ -70,16 +70,31 @@ export const columns: ColumnDef<Payment>[] = [
 
 <Dialog>
   
-  <DialogTrigger > <Button variant="outline" onClick={() => { 
-    navigator.clipboard.writeText(payment.id.toString())}}>view</Button></DialogTrigger>
-  <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll">
-    <DialogHeader className="grid" >
-      <DialogTitle dangerouslySetInnerHTML={{ __html:payment?.title}}></DialogTitle>
-      <DialogDescription>
-      <p className="grid"  dangerouslySetInnerHTML={{ __html:payment?.content}}></p>
-      </DialogDescription>
-    </DialogHeader>
-  </DialogContent>
+<DialogTrigger>
+  <Button
+    variant="outline"
+    onClick={() => {
+      navigator.clipboard.writeText(payment.id.toString());
+    }}
+  >
+    View
+  </Button>
+</DialogTrigger>
+<DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
+  <DialogHeader className="h-[34rem]">
+    <DialogTitle
+      className="flex justify-center items-center text-2xl font-bold leading-tight"
+      dangerouslySetInnerHTML={{ __html: payment?.title }}
+    ></DialogTitle>
+    <DialogDescription className="flex justify-center items-center">
+      <article
+        className="news-article w-full max-w-4xl p-4 text-gray-800"
+        dangerouslySetInnerHTML={{ __html: payment?.content }}
+      ></article>
+    </DialogDescription>
+  </DialogHeader>
+</DialogContent>
+
 </Dialog>
       );
     },
