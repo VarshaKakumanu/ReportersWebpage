@@ -46,5 +46,8 @@ export const router = createBrowserRouter([
     },
    
 ], {
-    basename: basename
+    basename: basename,
+    future: {
+        v7_partialHydration: true, // Enable partial hydration for React Router v7
+      },
 })

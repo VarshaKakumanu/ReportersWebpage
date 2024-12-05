@@ -112,21 +112,30 @@ const CreateArticle = () => {
       onSuccess: () => {
         let final_uploaded_url =
           s3_base_url + curtime + "/" + selectedFile?.name;
-          console.log(final_uploaded_url,"url in video tag")
+        console.log(final_uploaded_url, "url in video tag");
+      
         setVideoUrl(final_uploaded_url);
+      
         if (upload.file instanceof File) {
           setVideoUrl(upload.url);
-          const CurrentContent = getValues("content");
-          const newContent = `${CurrentContent}
- <div class="video-container">
-  <video controls preload='auto' width="600">
-    <source src="${final_uploaded_url}" type="${selectedFile?.type}">
-    Your browser does not support the video tag.
-  </video>
-</div>`;
-console.log(newContent,"onsucess content")
-          setValue("content", newContent);
+      
+          // Add a delay before updating the content
+          setTimeout(() => {
+            const CurrentContent = getValues("content");
+            const newContent = `${CurrentContent}
+            <div class="video-container">
+              <video controls preload='auto' width="600">
+                <source src="${final_uploaded_url}" type="${selectedFile?.type}">
+                Your browser does not support the video tag.
+              </video>
+            </div>`;
+            console.log(newContent, "onsuccess content");
+      
+            // Update the content after the delay
+            setValue("content", newContent);
+          }, 500); // Delay of 500ms (adjust if needed)
         }
+      
         makeMediaAPICall(final_uploaded_url);
         setIsUploadRunning(false);
         setUploadPercentage(0);
@@ -134,6 +143,7 @@ console.log(newContent,"onsucess content")
         setImageFileInputKey(Date.now());
         setSelectedFile(null); // Clear the selected file
       },
+      
     });
 
     upload.start();
