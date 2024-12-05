@@ -118,9 +118,6 @@
   object-fit: cover; /* This ensures the video covers the container while maintaining its aspect ratio */
 }
 
-.jodit-container:not(.jodit_inline) .jodit-wysiwyg jodit-media:before {
-  content: "";
-  inset: 0;
-  position: absolute;
-  z-index: -1;
+.Video video{
+  display: none;
 }
