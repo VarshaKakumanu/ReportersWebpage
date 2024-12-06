@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import React from "react";
+import Test from "./pages/Test";
 export const token = localStorage.getItem("access_token");
 const basename = "/";
 
@@ -18,6 +19,11 @@ export const router = createBrowserRouter([
             {
                 path: "",
                 element: <Dashboard />,
+
+            },
+            {
+                path: "/test",
+                element: <Test />,
             },
               
         ],
