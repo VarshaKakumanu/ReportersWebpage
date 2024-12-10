@@ -23,6 +23,7 @@ import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
 import { Icons } from "@/components/icons";
+import Test from "./Test";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -409,7 +410,7 @@ const CreateArticle = () => {
                 )}
               />
 
-              <FormItem className="flex space-y-4 gap-2">
+              {/* <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
                   <FormLabel>Video</FormLabel>
                   <FormControl>
@@ -448,6 +449,45 @@ const CreateArticle = () => {
                     <Icons.upLoad />
                   )}
                 </Button>
+              </FormItem> */}
+               <FormItem className="flex space-y-4 gap-2">
+                <div className="flex flex-col space-y-2 w-full">
+                  <FormLabel>Video</FormLabel>
+                  <FormControl>
+                    {/* <Input
+                      key={fileInputKey}
+                      className="bg-slate-200"
+                      type="file"
+                      accept="video/*" // Restrict to all video formats
+                      onChange={handleFileChange}
+                      autoFocus={true}
+                    /> */}
+                   <Test
+        onVideoUpload={(videoUrl: string) => {
+          setTimeout(() => {
+            const currentContent = getValues("content");
+            const updatedContent = `${currentContent}
+             <div class="video-container">
+              <video controls preload="auto" width="600">
+                <source src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>`;
+            setValue("content", updatedContent);
+          }, 1000);
+        }}
+        onImageUpload = {(ImageUrl: string) => {
+          const currentContent = getValues("content");
+          const updatedContent = `${currentContent}<div class="image-container"><img src="${ImageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
+          setValue("content", updatedContent);
+          toast.success("Image uploaded successfully!");
+        }}
+      />
+                  </FormControl>
+                  <FormMessage>
+                    {errors.content && errors.content.message}
+                  </FormMessage>
+                </div>
               </FormItem>
 
               <FormItem>
