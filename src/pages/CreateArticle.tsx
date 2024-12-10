@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
-import { Icons } from "@/components/icons";
 import Test from "./Test";
 
 // Define the schema for form validation
@@ -42,9 +41,7 @@ const CreateArticle = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [loadingImg, setLoadingImg] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageFileInputKey, setImageFileInputKey] = useState(Date.now());
   const [upload] = useState<tus.Upload | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
@@ -58,14 +55,11 @@ const CreateArticle = () => {
     formState: { errors },
   } = form;
 
-
-
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials);
     return `Basic ${encodedCredentials}`;
   };
-
 
   const makeArticleAPICall = (title: string, content: string) => {
     const authHeader = createBasicAuthHeader();
@@ -133,68 +127,6 @@ const CreateArticle = () => {
     }
   };
 
-  const [imageFile, setImageFile] = useState<File | null>(null); // Separate state for image file
-
-  const handleFileChangeImage = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file: any = e?.target?.files?.[0] || null;
-      if (file) {
-        if (!file.type.startsWith("image/")) {
-          toast.error("Only image files are allowed.");
-          return;
-        }
-        setImageFile(file); // Set image file
-        setImageFileInputKey(Date.now()); // Ensure the key is updated
-      } else {
-        toast.error("No file selected.");
-      }
-      if (!file.type.startsWith("image/")) {
-        toast.error("Invalid file type. Only images are allowed.");
-        return;
-      }
-    },
-    []
-  );
-
-  const handleImageUpload = useCallback(() => {
-    if (!imageFile) {
-      toast.error("No image file selected.");
-      return;
-    }
-
-    setLoadingImg(true);
-    const authHeader = createBasicAuthHeader();
-
-    const formData = new FormData();
-    formData.append("file", imageFile);
-
-    axios
-      .post(
-        `${BASE_URL}wp/v2/media`, // Replace with your actual endpoint
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: authHeader,
-          },
-        }
-      )
-      .then((response: any) => {
-        const imageUrl = response?.data?.source_url;
-        const currentContent = getValues("content");
-        const updatedContent = `${currentContent}<div class="image-container"><img src="${imageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
-        setValue("content", updatedContent);
-        toast.success("Image uploaded successfully!");
-        setImageFile(null);
-      })
-      .catch((error: any) => {
-        toast.error(error.data);
-      })
-      .finally(() => {
-        setLoadingImg(false);
-      });
-  }, [imageFile, getValues, setValue]);
-
   useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response) => {
       const S3Url = response?.data?.s3_base;
@@ -241,7 +173,6 @@ const CreateArticle = () => {
                         }}
                         init={{
                           plugins: [
-                            // Core editing features
                             "anchor",
                             "autolink",
                             "charmap",
@@ -282,7 +213,7 @@ const CreateArticle = () => {
                             "exportword",
                             "exportpdf",
                           ],
-                          menubar:false,
+                          menubar: false,
                           toolbar: false,
                           branding: false, // Disables the TinyMCE branding URL
                           readOnly: false,
@@ -298,7 +229,8 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-<div className="flex flex-col md:flex-row gap-1"> <FormItem className="flex space-y-4 gap-2">
+
+              <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
                   <FormLabel>Video</FormLabel>
                   <FormControl>
@@ -307,13 +239,25 @@ const CreateArticle = () => {
                         setTimeout(() => {
                           const currentContent = getValues("content");
                           const updatedContent = `${currentContent}
-             <div class="video-container">
-              <video controls preload="auto" width="600">
-                <source src="${videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>`;
+       <div class="video-container">
+        <video controls preload="auto" width="600">
+          <source src="${videoUrl}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>`;
                           setValue("content", updatedContent);
+                          toast.success("Video uploaded successfully!");
+                        }, 2000);
+                      }}
+                      onImageUpload={(imageUrl: string) => {
+                        setTimeout(() => {
+                          const currentContent = getValues("content");
+                          const updatedContent = `${currentContent}
+       <div class="image-container">
+        <img src="${imageUrl}" alt="Uploaded image" width="600" />
+      </div>`;
+                          setValue("content", updatedContent);
+                          toast.success("Image uploaded successfully!");
                         }, 2000);
                       }}
                     />
@@ -323,38 +267,6 @@ const CreateArticle = () => {
                   </FormMessage>
                 </div>
               </FormItem>
-
-              <FormItem>
-                <FormItem className="flex space-y-4 gap-2">
-                  <div className="flex flex-col space-y-2 w-full">
-                    <FormLabel> Image</FormLabel>
-                    <FormControl>
-                      <Input
-                        key={imageFileInputKey}
-                        className="bg-slate-200"
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.gif,.tiff,.bmp,.webp,.avif"
-                        onChange={handleFileChangeImage}
-                        autoFocus={true}
-                      />
-                    </FormControl>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={handleImageUpload}
-                    disabled={!imageFile || loadingImg}
-                  >
-                    {loadingImg ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      </>
-                    ) : (
-                      <Icons.upLoad />
-                    )}
-                  </Button>
-                </FormItem>
-              </FormItem></div>
-             
 
               {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
