@@ -15,7 +15,6 @@ import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as tus from "tus-js-client";
 import axios from "axios";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,16 +44,10 @@ const CreateArticle = () => {
   const [loading, setLoading] = useState(false);
   const [loadingImg, setLoadingImg] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadPercentage, setUploadPercentage] = useState(0);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [imageFileInputKey, setImageFileInputKey] = useState(Date.now());
-  const [isUploadRunning, setIsUploadRunning] = useState(false);
   const [upload] = useState<tus.Upload | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
-  const curtime = Math.ceil(Date.now() / 1000);
-  const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state: any) => state.loginParams);
   const dispatch = useDispatch();
 
@@ -65,17 +58,7 @@ const CreateArticle = () => {
     formState: { errors },
   } = form;
 
-  const handleFileChange = useCallback(
-    (e: any) => {
-      const file:any = e?.target?.files?.[0];
-      if(file){    setSelectedFile(file);
-      }else{
-        toast('File not Found')
-      }
-   console.log(file,"handleFileChange")
-    },
-    []
-  );
+
 
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
@@ -83,89 +66,6 @@ const CreateArticle = () => {
     return `Basic ${encodedCredentials}`;
   };
 
-  const startUpload = useCallback(() => {
-    console.log(selectedFile,"StartUpload")
-    if (!selectedFile) return;
-    
-    setVideoUrl(null);
-    const upload = new tus.Upload(selectedFile, {
-      endpoint: "http://test.kb.etvbharat.com/wp-tus?curtime=" + curtime,
-      chunkSize: 5 * 1024 * 1024,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
-      metadata: {
-        filename: selectedFile?.name,
-        filetype: selectedFile?.type,
-      },
-      onError: (error: any) => {
-        toast("Upload failed:", error);
-        setError(`Failed because: ${error.message}`);
-        setIsUploadRunning(false);
-        setLoading(false);
-        upload.start();
-      },
-      onProgress: (bytesUploaded: any, bytesTotal: any) => {
-        let percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-        if (percentage === "100.00") {
-          percentage = "99.90";
-        }
-        setUploadPercentage(Number(percentage));
-        console.log(bytesUploaded, bytesTotal, `${percentage}%`);
-      },
-      onSuccess: () => {
-        let final_uploaded_url =
-          s3_base_url + curtime + "/" + selectedFile?.name;
-        console.log(final_uploaded_url, "url in video tag");
-      
-        setVideoUrl(final_uploaded_url);
-      
-        if (upload.file instanceof File) {
-          setVideoUrl(upload.url);
-      
-          // Add a delay before updating the content
-          setTimeout(() => {
-            const CurrentContent = getValues("content");
-            const newContent = `${CurrentContent}
-            <div class="video-container">
-              <video controls preload='auto' width="600">
-                <source src="${final_uploaded_url}" type="${selectedFile?.type}">
-                Your browser does not support the video tag.
-              </video>
-            </div>`;
-            console.log(newContent, "onsuccess content");
-      
-            // Update the content after the delay
-            setValue("content", newContent);
-          }, 500); // Delay of 500ms (adjust if needed)
-        }
-      
-        makeMediaAPICall(final_uploaded_url);
-        setIsUploadRunning(false);
-        setUploadPercentage(0);
-        setFileInputKey(Date.now());
-        setImageFileInputKey(Date.now());
-        setSelectedFile(null); // Clear the selected file
-      },
-      
-    });
-
-    upload.start();
-  }, [upload, selectedFile, getValues, setValue]);
-
-  const makeMediaAPICall = (url: string) => {
-    axios
-      .get(
-        `${BASE_URL}media/v1/path?file_url=` +
-          url +
-          "&user_id=" +
-          userDetails?.id.toString()
-      )
-      .catch((error) => {
-        toast.error("Error fetching articles:", {
-          description: error.message,
-        });
-        setLoading(false);
-      });
-  };
 
   const makeArticleAPICall = (title: string, content: string) => {
     const authHeader = createBasicAuthHeader();
@@ -355,8 +255,6 @@ const CreateArticle = () => {
                             "table",
                             "visualblocks",
                             "wordcount",
-                            // Your account includes a free trial of TinyMCE premium features
-                            // Try the most popular premium features until Dec 17, 2024:
                             "checklist",
                             "mediaembed",
                             "casechange",
@@ -371,7 +269,6 @@ const CreateArticle = () => {
                             "advcode",
                             "editimage",
                             "advtemplate",
-                            "ai",
                             "mentions",
                             "tinycomments",
                             "tableofcontents",
@@ -381,25 +278,17 @@ const CreateArticle = () => {
                             "typography",
                             "inlinecss",
                             "markdown",
-                            // Early access to document converters
                             "importword",
                             "exportword",
                             "exportpdf",
                           ],
-                          readOnly: false,
+                          menubar:false,
                           toolbar: false,
+                          branding: false, // Disables the TinyMCE branding URL
+                          readOnly: false,
                           tinycomments_mode: "embedded",
                           tinycomments_author: "Author name",
-                          mergetags_list: [
-                            { value: "First.Name", title: "First Name" },
-                            { value: "Email", title: "Email" },
-                          ],
-                          ai_request: (respondWith: any) =>
-                            respondWith.string(() =>
-                              Promise.reject(
-                                "See docs to implement AI Assistant"
-                              )
-                            ),
+                          elementpath: false,
                         }}
                       />
                     </FormControl>
@@ -409,80 +298,25 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-
-              {/* <FormItem className="flex space-y-4 gap-2">
+<div className="flex flex-col md:flex-row gap-1"> <FormItem className="flex space-y-4 gap-2">
                 <div className="flex flex-col space-y-2 w-full">
                   <FormLabel>Video</FormLabel>
                   <FormControl>
-                    <Input
-                      key={fileInputKey}
-                      className="bg-slate-200"
-                      type="file"
-                      accept="video/*" // Restrict to all video formats
-                      onChange={handleFileChange}
-                      autoFocus={true}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {errors.content && errors.content.message}
-                  </FormMessage>
-                </div>
-
-                {uploadPercentage > 0 && (
-                  <div>
-                    <p>Upload Progress: {uploadPercentage}%</p>
-                    <Progress value={uploadPercentage} />
-                  </div>
-                )}
-
-                <Button
-                  type="button"
-                  onClick={startUpload}
-                  disabled={!selectedFile || isUploadRunning}
-                >
-                  {isUploadRunning ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                     
-                    </>
-                  ) : (
-                    <Icons.upLoad />
-                  )}
-                </Button>
-              </FormItem> */}
-               <FormItem className="flex space-y-4 gap-2">
-                <div className="flex flex-col space-y-2 w-full">
-                  <FormLabel>Video</FormLabel>
-                  <FormControl>
-                    {/* <Input
-                      key={fileInputKey}
-                      className="bg-slate-200"
-                      type="file"
-                      accept="video/*" // Restrict to all video formats
-                      onChange={handleFileChange}
-                      autoFocus={true}
-                    /> */}
-                   <Test
-        onVideoUpload={(videoUrl: string) => {
-          setTimeout(() => {
-            const currentContent = getValues("content");
-            const updatedContent = `${currentContent}
+                    <Test
+                      onVideoUpload={(videoUrl: string) => {
+                        setTimeout(() => {
+                          const currentContent = getValues("content");
+                          const updatedContent = `${currentContent}
              <div class="video-container">
               <video controls preload="auto" width="600">
                 <source src="${videoUrl}" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>`;
-            setValue("content", updatedContent);
-          }, 1000);
-        }}
-        onImageUpload = {(ImageUrl: string) => {
-          const currentContent = getValues("content");
-          const updatedContent = `${currentContent}<div class="image-container"><img src="${ImageUrl}" alt="${imageFile?.name}" width="600" /></div>`;
-          setValue("content", updatedContent);
-          toast.success("Image uploaded successfully!");
-        }}
-      />
+                          setValue("content", updatedContent);
+                        }, 2000);
+                      }}
+                    />
                   </FormControl>
                   <FormMessage>
                     {errors.content && errors.content.message}
@@ -502,21 +336,25 @@ const CreateArticle = () => {
                         accept=".jpg,.jpeg,.png,.gif,.tiff,.bmp,.webp,.avif"
                         onChange={handleFileChangeImage}
                         autoFocus={true}
-                      
                       />
                     </FormControl>
                   </div>
-                  <Button type="button" onClick={handleImageUpload}   disabled={!imageFile || loadingImg}>
+                  <Button
+                    type="button"
+                    onClick={handleImageUpload}
+                    disabled={!imageFile || loadingImg}
+                  >
                     {loadingImg ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       </>
                     ) : (
-                    <Icons.upLoad />
+                      <Icons.upLoad />
                     )}
                   </Button>
                 </FormItem>
-              </FormItem>
+              </FormItem></div>
+             
 
               {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
