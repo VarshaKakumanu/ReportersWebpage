@@ -11,17 +11,13 @@ import { toast } from "sonner";
 
 interface TestProps {
   onVideoUpload: (videoUrl: string) => void;
-  onImageUpload: (imageUrl: string) => void;
 }
 
-const Test: React.FC<TestProps> = ({ onVideoUpload,onImageUpload }) => {
+const Test: React.FC<TestProps> = ({ onVideoUpload }) => {
   const [uppy, setUppy] = useState<Uppy | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
   const userDetails = useSelector((state: any) => state?.userDetails);
-
-
-
 
   const makeMediaAPICall = (url: string) => {
     axios
@@ -47,17 +43,19 @@ const Test: React.FC<TestProps> = ({ onVideoUpload,onImageUpload }) => {
         autoProceed: false,
         restrictions: {
           maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
-          allowedFileTypes: ["video/*", "image/*", "audio/*"],
+          allowedFileTypes: ["video/*"],
         },
       })
         .use(Dashboard, {
           inline: true,
           target: "#uppy-dashboard", // Ensures only one dashboard is mounted
           showProgressDetails: true,
-          proudlyDisplayPoweredByUppy: true,
+          proudlyDisplayPoweredByUppy: false,
         })
-        .use(Tus, {   endpoint: "http://test.kb.etvbharat.com/wp-tus?curtime=" + curtime,});
-
+        .use(Tus, {
+          endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
+          retryDelays: [1000, 3000, 5000], // Retry intervals
+        });
       // On upload success
       uppyInstance.on("complete", (result: any) => {
             
@@ -74,18 +72,13 @@ const Test: React.FC<TestProps> = ({ onVideoUpload,onImageUpload }) => {
         });
       });
 
+      // Handle upload errors
+      uppyInstance.on("upload-error", (file: any, error) => {
+        console.error(`Error uploading file ${file.name}:`, error);
+      });
+
       setUppy(uppyInstance);
 
-      uppyInstance.on('upload-error', (file:any, error, response) => {
-        console.error(`Upload failed for ${file.name}:`, error, response);
-        uppyInstance.retryUpload(file.id)
-          .then(() => {
-            console.log(`Retrying upload for ${file.name} succeeded.`);
-          })
-          .catch(retryError => {
-            console.error(`Retrying upload for ${file.name} failed:`, retryError);
-          });
-      });
       return () => {
         // Clean up on unmount
               uppyInstance.clear();
@@ -106,7 +99,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload,onImageUpload }) => {
   }, []);
   return (
     <div className="flex flex-col items-center">
-      <div id="uppy-dashboard" className="w-full max-w-xl mt-4"></div>
+      <div id="uppy-dashboard" className="w-full max-w-xl z-10 "></div>
     </div>
   );
 };
