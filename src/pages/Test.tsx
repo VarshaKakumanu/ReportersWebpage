@@ -9,12 +9,17 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 
-const Test = () => {
+interface TestProps {
+  onVideoUpload: (videoUrl: string) => void;
+  onImageUpload: (imageUrl: string) => void;
+}
+
+const Test: React.FC<TestProps> = ({ onVideoUpload,onImageUpload }) => {
   const [uppy, setUppy] = useState<Uppy | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
   const userDetails = useSelector((state: any) => state?.userDetails);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
 
 
 
@@ -35,7 +40,7 @@ const Test = () => {
 
   useEffect(() => {
     if (!uppy) {
-        setVideoUrl(null);
+       
       // Initialize Uppy instance only once
       const uppyInstance = new Uppy({
         debug: true,
@@ -62,20 +67,25 @@ const Test = () => {
         result.successful.forEach((file: any) => {
             console.log("hey",s3_base_url)
           const final_uploaded_url = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/${curtime}/${file.name}`;
-          
-          setVideoUrl(final_uploaded_url);
+          onVideoUpload(final_uploaded_url);
+         
           console.log("Final Uploaded URL:", final_uploaded_url);
           makeMediaAPICall('http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/'+curtime+'/'+file.name);
         });
       });
 
-      // Handle upload errors
-      uppyInstance.on("upload-error", (file: any, error) => {
-        console.error(`Error uploading file ${file.name}:`, error);
-      });
-
       setUppy(uppyInstance);
 
+      uppyInstance.on('upload-error', (file:any, error, response) => {
+        console.error(`Upload failed for ${file.name}:`, error, response);
+        uppyInstance.retryUpload(file.id)
+          .then(() => {
+            console.log(`Retrying upload for ${file.name} succeeded.`);
+          })
+          .catch(retryError => {
+            console.error(`Retrying upload for ${file.name} failed:`, retryError);
+          });
+      });
       return () => {
         // Clean up on unmount
               uppyInstance.clear();
@@ -83,7 +93,7 @@ const Test = () => {
         uppyInstance.cancelAll(); // Cancels any ongoing uploads
       };
     }
-  }, [uppy, s3_base_url, curtime]);
+  }, [uppy, curtime, onVideoUpload]);
 
 
   useEffect(() => {
@@ -93,11 +103,10 @@ const Test = () => {
      
       setS3_base_url(S3Url);
     });
-  }, [videoUrl]);
+  }, []);
   return (
     <div className="flex flex-col items-center">
-      <h1>ETV Bharat File Upload</h1>
-      <div id="uppy-dashboard" className="w-full max-w-3xl mt-4 bg-pink-600"></div>
+      <div id="uppy-dashboard" className="w-full max-w-xl mt-4"></div>
     </div>
   );
 };
