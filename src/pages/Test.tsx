@@ -12,9 +12,10 @@ import { toast } from "sonner";
 interface TestProps {
   onVideoUpload: (videoUrl: string) => void;
   onImageUpload: (imageUrl: string) => void;
+  PostCall:()=> void;
 }
 
-const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
+const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) => {
   const [uppy, setUppy] = useState<Uppy | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
@@ -64,14 +65,18 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
   useEffect(() => {
     if (!uppy) {
       const uppyInstance = new Uppy({
+        
         debug: true,
         autoProceed: false,
         restrictions: {
           maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
           allowedFileTypes: ["video/*", "image/*"],
+        
         },
+        
       })
         .use(Dashboard, {
+          
           inline: true,
           target: "#uppy-dashboard",
           showProgressDetails: true,
@@ -80,6 +85,8 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
         .use(Tus, {
           endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
           retryDelays: [1000, 3000, 5000],
+          // chunkSize: 10 * 1024 * 1024, // Set chunk size to 10MB
+          // parallelUploads: 3,
         });
 
       // On upload success
@@ -94,6 +101,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
             onVideoUpload(finalUploadedUrl);
             makeMediaAPICall(finalUploadedUrl);
             toast.success("Video uploaded successfully!");
+            PostCall();
           }
         });
       });
