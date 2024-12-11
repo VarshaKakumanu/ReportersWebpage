@@ -134,7 +134,7 @@ const CreateArticle = () => {
   }, [getValues, videoUrl]);
 
   return (
-    <div className="bg-background text-foreground flex items-center justify-evenly max-h-full">
+    <div className="bg-slate-200 text-foreground flex items-center justify-evenly max-h-full">
       <div className="w-full divide-y divide-slate-300">
         <div className="w-full flex">
           <Form {...form}>
@@ -149,7 +149,7 @@ const CreateArticle = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Article Title" {...field} />
+                      <Input className="bg-white focus:outline-none focus:ring-0" placeholder="Article Title" {...field} />
                     </FormControl>
                     <FormMessage>
                       {errors.title && "Title is required"}
