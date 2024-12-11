@@ -73,7 +73,6 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) =>
         },
       })
         .use(Dashboard, {
-          
           inline: true,
           target: "#uppy-dashboard",
           showProgressDetails: true,
