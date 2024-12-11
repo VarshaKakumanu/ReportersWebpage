@@ -65,15 +65,12 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) =>
   useEffect(() => {
     if (!uppy) {
       const uppyInstance = new Uppy({
-        
         debug: true,
         autoProceed: false,
         restrictions: {
           maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
           allowedFileTypes: ["video/*", "image/*"],
-        
         },
-        
       })
         .use(Dashboard, {
           
@@ -85,7 +82,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) =>
         .use(Tus, {
           endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
           retryDelays: [1000, 3000, 5000],
-          chunkSize: 10 * 1024 * 1024, // Set chunk size to 10MB
+          chunkSize: 100 * 1024 * 1024, // Set chunk size to 10MB
           // parallelUploads: 3,
         });
 
