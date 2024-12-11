@@ -22,6 +22,11 @@ import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
 import Test from "./Test";
+import { Popover } from "@radix-ui/react-popover";
+import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Icons } from "@/components/icons";
 
 // Define the schema for form validation
 const formSchema = z.object({
@@ -35,7 +40,6 @@ const CreateArticle = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
       content: "",
     },
   });
@@ -59,6 +63,16 @@ const CreateArticle = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials);
     return `Basic ${encodedCredentials}`;
+  };
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handlePostCall = (content: string, title: string) => {
+    // Simulate an API call
+    setTimeout(() => {
+      toast.success("Post created successfully!");
+      setIsDialogOpen(false); // Close the dialog after the post is done
+    }, 1000);
   };
 
   const makeArticleAPICall = (title: string, content: string) => {
@@ -102,6 +116,10 @@ const CreateArticle = () => {
 
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
+    if (!contentWithVideo) {
+      toast("Form not submitted: Content is required");
+      return;
+    }
     // Find the <video> tag with its source URL
     const videoTagRegex =
       /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/is;
@@ -121,9 +139,9 @@ const CreateArticle = () => {
         customVideoTag
       );
       // Now you can proceed with making the API call
-      makeArticleAPICall(data.title, contentForApiCall);
+      makeArticleAPICall(data.title || "Untitled Post", contentForApiCall);
     } else {
-      toast("Form not submitted: Missing video URL or title");
+      makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
     }
   };
 
@@ -158,12 +176,63 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
+              
               <FormField
                 control={form.control}
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
+                    <FormLabel className="flex items-center justify-between w-full"><p>Content</p>
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger>
+          <Button className="flex gap-2" onClick={() => setIsDialogOpen(true)}>Upload video/image <Icons.upLoad /></Button> 
+        </DialogTrigger>
+
+                <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
+                        <Test
+                          PostCall={() => {
+                            const content = "Test Content"; // Replace with actual content
+                            const title = "Test Title"; // Replace with actual title
+                            if (content) {
+                              setTimeout(() => {
+                                toast.success("Post created successfully!");
+                                setIsDialogOpen(false); // Close the dialog after the post is done
+                              }, 1000);
+                            } else {
+                              toast.error("Content is required to create a post.");
+                            }
+                          }}
+                          onVideoUpload={(videoUrl: string) => {
+                            setTimeout(() => {
+                              const currentContent = getValues("content");
+                              const updatedContent = `${currentContent}
+       <div class="video-container">
+        <video controls preload="auto" width="600">
+          <source src="${videoUrl}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>`;
+                              setValue("content", updatedContent);
+                              setIsDialogOpen(false);
+                              toast.success("Video uploaded successfully!");
+                            }, 3000);
+                          }}
+                          onImageUpload={(imageUrl: string) => {
+                            setTimeout(() => {
+                              const currentContent = getValues("content");
+                              const updatedContent = `${currentContent}
+       <div class="image-container">
+        <img src="${imageUrl}" alt="Uploaded image" width="600" />
+      </div>`;
+                              setValue("content", updatedContent);
+                              setIsDialogOpen(false);
+                              toast.success("Image uploaded successfully!");
+                            }, 2000);
+                          }}
+                        />
+                     
+                </DialogContent>
+              </Dialog></FormLabel>
                     <FormControl>
                       <Editor
                         apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
@@ -212,7 +281,9 @@ const CreateArticle = () => {
                             "importword",
                             "exportword",
                             "exportpdf",
+                            "quickbars",
                           ],
+                          file_picker_types: "file image media",
                           menubar: false,
                           toolbar: false,
                           branding: false, // Disables the TinyMCE branding URL
@@ -220,6 +291,20 @@ const CreateArticle = () => {
                           tinycomments_mode: "embedded",
                           tinycomments_author: "Author name",
                           elementpath: false,
+                          quickbars_selection_toolbar:
+                            "bold italic | blocks | quicklink blockquote",
+                          setup: (editor) => {
+                            editor.ui.registry.addContextToolbar(
+                              "paragraphlink",
+                              {
+                                predicate: (node) => {
+                                  return node.nodeName.toLowerCase() === "p";
+                                },
+                                items: "quicklink",
+                                position: "selection",
+                              }
+                            );
+                          },
                         }}
                       />
                     </FormControl>
@@ -229,45 +314,6 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-
-              <FormItem className="flex space-y-4 gap-2">
-                <div className="flex flex-col space-y-2 w-full">
-                  <FormLabel>Video</FormLabel>
-                  <FormControl>
-                    <Test
-                      onVideoUpload={(videoUrl: string) => {
-                        setTimeout(() => {
-                          const currentContent = getValues("content");
-                          const updatedContent = `${currentContent}
-       <div class="video-container">
-        <video controls preload="auto" width="600">
-          <source src="${videoUrl}" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>`;
-                          setValue("content", updatedContent);
-                          toast.success("Video uploaded successfully!");
-                        }, 2000);
-                      }}
-                      onImageUpload={(imageUrl: string) => {
-                        setTimeout(() => {
-                          const currentContent = getValues("content");
-                          const updatedContent = `${currentContent}
-       <div class="image-container">
-        <img src="${imageUrl}" alt="Uploaded image" width="600" />
-      </div>`;
-                          setValue("content", updatedContent);
-                          toast.success("Image uploaded successfully!");
-                        }, 2000);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {errors.content && errors.content.message}
-                  </FormMessage>
-                </div>
-              </FormItem>
-
               {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
                 <Button className="w-full" disabled>
