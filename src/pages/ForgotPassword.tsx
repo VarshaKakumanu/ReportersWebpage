@@ -64,7 +64,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-evenly p-4 h-screen">
-       <div className="flex ml-auto"> <ModeToggle /></div>
+       {/* <div className="flex ml-auto"> <ModeToggle /></div> */}
        <div className="bg-background text-foreground flex-grow flex w-full items-center justify-evenly ">   <div className="space-y-4 hidden md:flex flex-col p-4">
         <h2 className="text-8xl mb-4">Etv Bharat</h2>
 

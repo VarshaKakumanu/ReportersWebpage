@@ -152,7 +152,7 @@ const navigate = useNavigate();
 
   return (
     <div className="bg-background text-foreground flex-grow flex flex-col items-center justify-center h-screen p-4">
-    <div className="flex ml-auto"> <ModeToggle /></div>
+    {/* <div className="flex ml-auto"> <ModeToggle /></div> */}
     
       <div>
         {params.msg === "credentials" && params.email && params.pwd && (

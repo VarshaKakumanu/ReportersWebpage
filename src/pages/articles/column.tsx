@@ -72,7 +72,7 @@ export const columns: ColumnDef<Payment>[] = [
   
 <DialogTrigger>
   <Button
-    variant="outline"
+    variant="default"
     onClick={() => {
       navigator.clipboard.writeText(payment.id.toString());
     }}
