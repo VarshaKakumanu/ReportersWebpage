@@ -121,10 +121,10 @@ const CreateArticle = () => {
         customVideoTag
       );
       makeArticleAPICall(data.title || "Untitled Post", contentForApiCall);
-      form.reset();
+      // form.reset();
     } else {
       // makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
-      toast.error("missing")
+      toast.error("missing content")
     }
   };
 
@@ -245,7 +245,7 @@ const CreateArticle = () => {
         </div>`;
       setValue("content", updatedContent);
       setIsDialogOpen(false);
-      makeArticleAPICall("video", updatedContent) // Corrected to include the videoUrl as the second argument
+      handleSubmit(onSubmit)();  
       toast.success("Video uploaded successfully!");
   }, 3000); 
 
