@@ -63,57 +63,79 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) =>
   };
 
   useEffect(() => {
-    if (!uppy) {
-      const uppyInstance = new Uppy({
-        debug: true,
-        autoProceed: false,
-        restrictions: {
-          maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
-          allowedFileTypes: ["video/*", "image/*"],
-        },
-      })
-        .use(Dashboard, {
-          inline: true,
-          target: "#uppy-dashboard",
-          showProgressDetails: true,
-          proudlyDisplayPoweredByUppy: false,
-        })
-        .use(Tus, {
-          endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
-          retryDelays: [1000, 3000, 5000],
-          chunkSize: 100 * 1024 * 1024, // Set chunk size to 10MB
-          // parallelUploads: 3,
-        });
-
-      // On upload success
-      uppyInstance.on("complete", (result: any) => {
-        result.successful.forEach((file: any) => {
-          if (file.type.startsWith("image/")) {
-            // Handle image upload
-            uploadImageToWP(file.data);
-          } else if (file.type.startsWith("video/")) {
-            // Handle video upload
-            const finalUploadedUrl = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/${curtime}/${file.name}`;
-            onVideoUpload(finalUploadedUrl);
-            makeMediaAPICall(finalUploadedUrl);
-            toast.success("Video uploaded successfully!");
-            PostCall();
-          }
-        });
+    const uppyInstance = new Uppy({
+      debug: true,
+      autoProceed: false,
+      restrictions: {
+        maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
+        allowedFileTypes: ["video/*", "image/*"],
+      },
+    });
+  
+    // Configure Dashboard Plugin
+    uppyInstance.use(Dashboard, {
+      inline: true,
+      target: "#uppy-dashboard",
+      showProgressDetails: true,
+      proudlyDisplayPoweredByUppy: false,
+    });
+  
+    // Configure Tus Plugin
+    uppyInstance.use(Tus, {
+      endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
+      retryDelays: [1000, 3000, 5000],
+      chunkSize: 100 * 1024 * 1024, // Set chunk size to 10MB
+    });
+  
+    // Success Event
+    uppyInstance.on("complete", (result: any) => {
+      result.successful.forEach((file: any) => {
+        if (file.type.startsWith("image/")) {
+          uploadImageToWP(file.data);
+        } else if (file.type.startsWith("video/")) {
+          const finalUploadedUrl = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/${curtime}/${file.name}`;
+          onVideoUpload(finalUploadedUrl);
+          makeMediaAPICall(finalUploadedUrl);
+          toast.success("Video uploaded successfully!");
+          PostCall();
+        }
       });
-
-      // Handle upload errors
-      uppyInstance.on("upload-error", (file: any, error) => {
-        toast.error(`Error uploading file ${file.name}: ${error.message}`);
-      });
-
-      setUppy(uppyInstance);
-
-      return () => {
-        uppyInstance.cancelAll(); // Cancel ongoing uploads
-      };
-    }
-  }, [uppy, curtime, onVideoUpload, onImageUpload]);
+    });
+  
+    // Error Event
+    uppyInstance.on("upload-error", (file: any, error) => {
+      toast.error(`Error uploading file ${file.name}: ${error.message}`);
+    });
+  
+    setUppy(uppyInstance);
+  
+    // Cleanup
+    return () => {
+      if (uppyInstance) {
+        // Cancel all uploads
+        uppyInstance.cancelAll();
+  
+        // Uninstall plugins manually
+        const dashboard = uppyInstance.getPlugin("Dashboard");
+        if (dashboard) {
+          uppyInstance.removePlugin(dashboard);
+        }
+  
+        const tus = uppyInstance.getPlugin("Tus");
+        if (tus) {
+          uppyInstance.removePlugin(tus);
+        }
+  
+        // Remove all event listeners
+        uppyInstance.removeFile("complete");
+        uppyInstance.removeFile("upload-error");
+  
+        // Set instance to null
+        setUppy(null);
+      }
+    };
+  }, [onVideoUpload, onImageUpload, curtime]);
+  
 
   useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response) => {
