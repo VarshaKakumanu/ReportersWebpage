@@ -89,7 +89,7 @@ const navigate = useNavigate();
   }
 
   return (
-    <><div className='p-3 bg-slate-200'> 
+    <><div className='p-3 bg-purple-100 rounded-b-xl'> 
     <Tabs defaultValue="Create" className="w-full">
         <TabsList className="w-full flex justify-evenly">
           <TabsTrigger className="w-full" value="Create">
