@@ -12,10 +12,9 @@ import { toast } from "sonner";
 interface TestProps {
   onVideoUpload: (videoUrl: string) => void;
   onImageUpload: (imageUrl: string) => void;
-  PostCall:()=> void;
 }
 
-const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) => {
+const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
   const [uppy, setUppy] = useState<Uppy | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
@@ -96,8 +95,6 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload ,PostCall}) =>
           const finalUploadedUrl = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/${curtime}/${file.name}`;
           onVideoUpload(finalUploadedUrl);
           makeMediaAPICall(finalUploadedUrl);
-          toast.success("Video uploaded successfully!");
-          PostCall();
         }
       });
     });

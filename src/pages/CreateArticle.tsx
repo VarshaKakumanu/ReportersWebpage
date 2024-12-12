@@ -21,7 +21,7 @@ import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
 import Test from "./Test";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Icons } from "@/components/icons";
+// import { Icons } from "@/components/icons";
 import { useTheme } from "@/hooks/useTheme";
 
 type FormData = {
@@ -46,8 +46,8 @@ const CreateArticle = () => {
   const dispatch = useDispatch();
   const { theme } = useTheme();
 
-  const editorSkin = theme === "dark" ? "oxide-dark" : "oxide";
-  const editorContentCss = theme === "dark" ? "dark" : "default";
+  // const editorSkin = theme === "dark" ? "oxide-dark" : "oxide";
+  // const editorContentCss = theme === "dark" ? "dark" : "default";
 
   const {
     setValue,
@@ -87,7 +87,7 @@ const CreateArticle = () => {
         if (id) {
           toast.success("Post created successfully!");
           dispatch(ArticleFlag(true));
-          form.reset();
+          // form.reset();
         } else {
           toast.error("Failed to post");
           dispatch(ArticleFlag(false));
@@ -121,6 +121,7 @@ const CreateArticle = () => {
         customVideoTag
       );
       makeArticleAPICall(data.title || "Untitled Post", contentForApiCall);
+      form.reset();
     } else {
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
     }
@@ -231,35 +232,41 @@ const CreateArticle = () => {
           <Button className="hidden" />
         </DialogTrigger>
         <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
-          <Test
-            PostCall={() => {
-              toast.success("Post created successfully!");
-              setIsDialogOpen(false);
-            }}
-            onVideoUpload={(videoUrl: string) => {
-              const currentContent = getValues("content");
-              const updatedContent = `${currentContent}
-                <div class="video-container">
-                  <video controls preload="auto" width="600">
-                    <source src="${videoUrl}" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>`;
-              setValue("content", updatedContent);
-              setIsDialogOpen(false);
-              toast.success("Video uploaded successfully!");
-            }}
-            onImageUpload={(imageUrl: string) => {
-              const currentContent = getValues("content");
-              const updatedContent = `${currentContent}
-                <div class="image-container">
-                  <img src="${imageUrl}" alt="Uploaded image" width="600" />
-                </div>`;
-              setValue("content", updatedContent);
-              setIsDialogOpen(false);
-              toast.success("Image uploaded successfully!");
-            }}
-          />
+        <Test
+  onVideoUpload={(videoUrl: string) => {
+    const currentContent = getValues("content");
+    const updatedContent = `${currentContent}
+      <div class="video-container">
+        <video id="uploaded-video" controls preload="auto" width="600">
+          <source src="${videoUrl}" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>`;
+    setValue("content", updatedContent);
+    setIsDialogOpen(false);
+    toast.success("Video uploaded successfully!");
+
+    // Ensure the video element is available in the DOM
+    setTimeout(() => {
+      const videoElement = document.getElementById("uploaded-video") as HTMLVideoElement;
+      if (videoElement) {
+        videoElement.currentTime = 5; // Set the initial playback time to 5 seconds
+        videoElement.play(); // Optionally start playback
+      }
+    }, 3000); // Delay slightly to ensure DOM updates
+  }}
+  onImageUpload={(imageUrl: string) => {
+    const currentContent = getValues("content");
+    const updatedContent = `${currentContent}
+      <div class="image-container">
+        <img src="${imageUrl}" alt="Uploaded image" width="600" />
+      </div>`;
+    setValue("content", updatedContent);
+    setIsDialogOpen(false);
+    toast.success("Image uploaded successfully!");
+  }}
+/>
+
         </DialogContent>
       </Dialog>
       <FormMessage>
