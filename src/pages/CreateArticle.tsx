@@ -134,7 +134,7 @@ const CreateArticle = () => {
   }, [getValues, videoUrl]);
 
   return (
-    <div className="bg-slate-200 text-foreground flex items-center justify-evenly max-h-full">
+    <div className="bg-purple-100 text-foreground flex items-center justify-evenly max-h-full">
       <div className="w-full divide-y divide-slate-300">
         <div className="w-full flex">
           <Form {...form}>
@@ -149,7 +149,7 @@ const CreateArticle = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input className="bg-white focus:outline-none focus:ring-0" placeholder="Article Title" {...field} />
+                      <Input className="bg-white rounded-lg focus:outline-none focus:ring-0" placeholder="Article Title" {...field} />
                     </FormControl>
                     <FormMessage>
                       {errors.title && "Title is required"}
@@ -157,141 +157,118 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
+<FormField
+  control={form.control}
+  name="content"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>
+        <p>Content</p>
+      </FormLabel>
+      <FormControl>
+        <Editor
+          apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
+          value={field.value}
+          onEditorChange={(content: string) => {
+            field.onChange(content);
+          }}
+          init={{
+            plugins: [
+            
+              "anchor",
+              "autolink",
+              "lists",
+              "link",
+              "media",
+              "image",
+              "emoticons",
+              "charmap",
+              "searchreplace",
+              "table",
+              "visualblocks",
+              "wordcount",
+            ],
+            placeholder: "Write Your Article Here..",
+            height: 220,
+            menubar: false,
+            branding: false,
+            elementpath: false,
+            toolbar: false, // Hide the main toolbar
+            setup: (editor) => {
+              editor.on("init", () => {
+                const container = editor.getContainer();
+                const statusbar = container.querySelector(".tox-statusbar");
+                if (statusbar) {
+                  const buttonContainer = document.createElement("div");
+                  buttonContainer.style.display = "flex";
+                  buttonContainer.style.alignItems = "center";
+                  buttonContainer.style.marginLeft = "auto";
 
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center justify-between w-full">
-                      <p>Content</p>
-                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger>
-                          <Button
-                            className="flex gap-2"
-                            onClick={() => setIsDialogOpen(true)}
-                          >
-                            Upload video/image <Icons.upLoad />
-                          </Button>
-                        </DialogTrigger>
+                  const insertButton = document.createElement("button");
+                  insertButton.textContent = "Insert Video or Image";
+                  insertButton.style.marginLeft = "8px";
+                  insertButton.style.padding = "4px 8px";
+                  insertButton.style.backgroundColor = "#FFC107";
+                  insertButton.style.color = "#000";
+                  insertButton.style.border = "none";
+                  insertButton.style.cursor = "pointer";
+                  insertButton.style.borderRadius = "4px";
 
-                        <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
-                          <Test
-                            PostCall={() => {
-                              toast.success("Post created successfully!");
-                              setIsDialogOpen(false);
-                            }}
-                            onVideoUpload={(videoUrl: string) => {
-                              const currentContent = getValues("content");
-                              const updatedContent = `${currentContent}
-            <div class="video-container">
-              <video controls preload="auto" width="600">
-                <source src="${videoUrl}" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>`;
-                              setValue("content", updatedContent);
-                              setIsDialogOpen(false);
-                              toast.success("Video uploaded successfully!");
-                            }}
-                            onImageUpload={(imageUrl: string) => {
-                              const currentContent = getValues("content");
-                              const updatedContent = `${currentContent}
-            <div class="image-container">
-              <img src="${imageUrl}" alt="Uploaded image" width="600" />
-            </div>`;
-                              setValue("content", updatedContent);
-                              setIsDialogOpen(false);
-                              toast.success("Image uploaded successfully!");
-                            }}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    </FormLabel>
-                    <FormControl>
-                      <Editor
-                        apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
-                        value={field.value}
-                        onEditorChange={(content: string) => {
-                          field.onChange(content);
-                        }}
-                        init={{
-                          plugins: [
-                            "anchor",
-                            "autolink",
-                            "charmap",
-                            "codesample",
-                            "emoticons",
-                            "image",
-                            "link",
-                            "lists",
-                            "media",
-                            "searchreplace",
-                            "table",
-                            "visualblocks",
-                            "wordcount",
-                            "checklist",
-                            "mediaembed",
-                            "casechange",
-                            "export",
-                            "formatpainter",
-                            "pageembed",
-                            "a11ychecker",
-                            "tinymcespellchecker",
-                            "permanentpen",
-                            "powerpaste",
-                            "advtable",
-                            "advcode",
-                            "editimage",
-                            "advtemplate",
-                            "mentions",
-                            "tinycomments",
-                            "tableofcontents",
-                            "footnotes",
-                            "mergetags",
-                            "autocorrect",
-                            "typography",
-                            "inlinecss",
-                            "markdown",
-                            "importword",
-                            "exportword",
-                            "exportpdf",
-                            "quickbars",
-                          ],
-                          height: 200,
-                          skin: editorSkin,
-                          content_css: editorContentCss,
-                          file_picker_types: "file image media",
-                          menubar: false,
-                          toolbar: false,
-                          branding: false,
-                          readOnly: false,
-                          tinycomments_mode: "embedded",
-                          tinycomments_author: "Author name",
-                          elementpath: false,
-                          quickbars_selection_toolbar:
-                            "bold italic | blocks | quicklink blockquote",
-                          setup: (editor) => {
-                            editor.ui.registry.addContextToolbar(
-                              "paragraphlink",
-                              {
-                                predicate: (node) => {
-                                  return node.nodeName.toLowerCase() === "p";
-                                },
-                                items: "quicklink",
-                                position: "selection",
-                              }
-                            );
-                          },
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage>
-                      {errors.content && "Content is required"}
-                    </FormMessage>
-                  </FormItem>
-                )}
-              />
+                  insertButton.addEventListener("click", () => {
+                    setIsDialogOpen(true);
+                  });
+
+                  buttonContainer.appendChild(insertButton);
+                  statusbar.appendChild(buttonContainer);
+                }
+              });
+            },
+          }}
+        />
+      </FormControl>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger>
+          <Button className="hidden" />
+        </DialogTrigger>
+        <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
+          <Test
+            PostCall={() => {
+              toast.success("Post created successfully!");
+              setIsDialogOpen(false);
+            }}
+            onVideoUpload={(videoUrl: string) => {
+              const currentContent = getValues("content");
+              const updatedContent = `${currentContent}
+                <div class="video-container">
+                  <video controls preload="auto" width="600">
+                    <source src="${videoUrl}" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>`;
+              setValue("content", updatedContent);
+              setIsDialogOpen(false);
+              toast.success("Video uploaded successfully!");
+            }}
+            onImageUpload={(imageUrl: string) => {
+              const currentContent = getValues("content");
+              const updatedContent = `${currentContent}
+                <div class="image-container">
+                  <img src="${imageUrl}" alt="Uploaded image" width="600" />
+                </div>`;
+              setValue("content", updatedContent);
+              setIsDialogOpen(false);
+              toast.success("Image uploaded successfully!");
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+      <FormMessage>
+        {errors.content && "Content is required"}
+      </FormMessage>
+    </FormItem>
+  )}
+/>
+
 
               {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
