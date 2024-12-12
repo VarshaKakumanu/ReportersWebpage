@@ -123,7 +123,8 @@ const CreateArticle = () => {
       makeArticleAPICall(data.title || "Untitled Post", contentForApiCall);
       form.reset();
     } else {
-      makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
+      // makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
+      toast.error("missing")
     }
   };
 
@@ -234,26 +235,22 @@ const CreateArticle = () => {
         <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
         <Test
   onVideoUpload={(videoUrl: string) => {
-    const currentContent = getValues("content");
-    const updatedContent = `${currentContent}
-      <div class="video-container">
-        <video id="uploaded-video" controls preload="auto" width="600">
-          <source src="${videoUrl}" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>`;
-    setValue("content", updatedContent);
-    setIsDialogOpen(false);
-    toast.success("Video uploaded successfully!");
+    setTimeout(() => {  const currentContent = getValues("content");
+      const updatedContent = `${currentContent}
+        <div class="video-container">
+          <video id="uploaded-video" controls preload="auto" width="600">
+            <source src="${videoUrl}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>`;
+      setValue("content", updatedContent);
+      setIsDialogOpen(false);
+      makeArticleAPICall("video", updatedContent) // Corrected to include the videoUrl as the second argument
+      toast.success("Video uploaded successfully!");
+  }, 3000); 
 
     // Ensure the video element is available in the DOM
-    setTimeout(() => {
-      const videoElement = document.getElementById("uploaded-video") as HTMLVideoElement;
-      if (videoElement) {
-        videoElement.currentTime = 5; // Set the initial playback time to 5 seconds
-        videoElement.play(); // Optionally start playback
-      }
-    }, 3000); // Delay slightly to ensure DOM updates
+ // Delay slightly to ensure DOM updates
   }}
   onImageUpload={(imageUrl: string) => {
     const currentContent = getValues("content");
