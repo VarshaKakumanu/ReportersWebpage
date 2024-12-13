@@ -85,8 +85,9 @@ const CreateArticle = () => {
       .then((response) => {
         const id = response?.data?.id;
         if (id) {
-          toast.success("Post created successfully!");
+         
           dispatch(ArticleFlag(true));
+          toast.success("Post created successfully!");
           // form.reset();
         } else {
           toast.error("Failed to post");
