@@ -41,7 +41,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
 
       const imageUrl = response?.data?.source_url;
       onImageUpload(imageUrl); // Callback for image upload success
-      toast.success("Image uploaded successfully!");
+      // toast.success("Image uploaded successfully!");
     } catch (error: any) {
       toast.error("Error uploading image:", {
         description: error.message,
