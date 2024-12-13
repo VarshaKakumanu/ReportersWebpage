@@ -124,7 +124,7 @@ const CreateArticle = () => {
       // form.reset();
     } else {
       // makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
-      toast.error("missing content")
+      // toast.error("missing content");
     }
   };
 
@@ -151,7 +151,11 @@ const CreateArticle = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input className="bg-white rounded-lg focus:outline-none focus:ring-0" placeholder="Article Title" {...field} />
+                      <Input
+                        className="bg-white rounded-lg focus:outline-none focus:ring-0"
+                        placeholder="Article Title"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage>
                       {errors.title && "Title is required"}
@@ -159,120 +163,119 @@ const CreateArticle = () => {
                   </FormItem>
                 )}
               />
-<FormField
-  control={form.control}
-  name="content"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>
-        <p>Content</p>
-      </FormLabel>
-      <FormControl>
-        <Editor
-          apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
-          value={field.value}
-          onEditorChange={(content: string) => {
-            field.onChange(content);
-          }}
-          init={{
-            plugins: [
-            
-              "anchor",
-              "autolink",
-              "lists",
-              "link",
-              "media",
-              "image",
-              "emoticons",
-              "charmap",
-              "searchreplace",
-              "table",
-              "visualblocks",
-              "wordcount",
-            ],
-            placeholder: "Write Your Article Here..",
-            height: 220,
-            menubar: false,
-            branding: false,
-            elementpath: false,
-            toolbar: false, // Hide the main toolbar
-            setup: (editor) => {
-              editor.on("init", () => {
-                const container = editor.getContainer();
-                const statusbar = container.querySelector(".tox-statusbar");
-                if (statusbar) {
-                  const buttonContainer = document.createElement("div");
-                  buttonContainer.style.display = "flex";
-                  buttonContainer.style.alignItems = "center";
-                  buttonContainer.style.marginLeft = "auto";
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      <p>Content</p>
+                    </FormLabel>
+                    <FormControl>
+                      <Editor
+                        apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
+                        value={field.value}
+                        onEditorChange={(content: string) => {
+                          field.onChange(content);
+                        }}
+                        init={{
+                          plugins: [
+                            "anchor",
+                            "autolink",
+                            "lists",
+                            "link",
+                            "media",
+                            "image",
+                            "emoticons",
+                            "charmap",
+                            "searchreplace",
+                            "table",
+                            "visualblocks",
+                            "wordcount",
+                          ],
+                          placeholder: "Write Your Article Here..",
+                          height: 220,
+                          menubar: false,
+                          branding: false,
+                          elementpath: false,
+                          toolbar: false, // Hide the main toolbar
+                          setup: (editor) => {
+                            editor.on("init", () => {
+                              const container = editor.getContainer();
+                              const statusbar =
+                                container.querySelector(".tox-statusbar");
+                              if (statusbar) {
+                                const buttonContainer =
+                                  document.createElement("div");
+                                buttonContainer.style.display = "flex";
+                                buttonContainer.style.alignItems = "center";
+                                buttonContainer.style.marginLeft = "auto";
 
-                  const insertButton = document.createElement("button");
-                  insertButton.textContent = "Insert Video or Image";
-                  insertButton.style.marginLeft = "8px";
-                  insertButton.style.padding = "4px 8px";
-                  insertButton.style.backgroundColor = "#FFC107";
-                  insertButton.style.color = "#000";
-                  insertButton.style.border = "none";
-                  insertButton.style.cursor = "pointer";
-                  insertButton.style.borderRadius = "4px";
+                                const insertButton =
+                                  document.createElement("button");
+                                insertButton.textContent =
+                                  "Insert Video or Image";
+                                insertButton.style.marginLeft = "8px";
+                                insertButton.style.padding = "4px 8px";
+                                insertButton.style.backgroundColor = "#FFC107";
+                                insertButton.style.color = "#000";
+                                insertButton.style.border = "none";
+                                insertButton.style.cursor = "pointer";
+                                insertButton.style.borderRadius = "4px";
 
-                  insertButton.addEventListener("click", () => {
-                    setIsDialogOpen(true);
-                  });
+                                insertButton.addEventListener("click", () => {
+                                  setIsDialogOpen(true);
+                                });
 
-                  buttonContainer.appendChild(insertButton);
-                  statusbar.appendChild(buttonContainer);
-                }
-              });
-            },
-          }}
-        />
-      </FormControl>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger>
-          <Button className="hidden" />
-        </DialogTrigger>
-        <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
-        <Test
-  onVideoUpload={(videoUrl: string) => {
-    setTimeout(() => {  const currentContent = getValues("content");
-      const updatedContent = `${currentContent}
+                                buttonContainer.appendChild(insertButton);
+                                statusbar.appendChild(buttonContainer);
+                              }
+                            });
+                          },
+                        }}
+                      />
+                    </FormControl>
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                      <DialogTrigger>
+                        <Button className="hidden" />
+                      </DialogTrigger>
+                      <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
+                        <Test
+                          onVideoUpload={(videoUrl: string) => {
+                            setTimeout(() => {
+                              const currentContent = getValues("content");
+                              const updatedContent = `${currentContent}
         <div class="video-container">
           <video id="uploaded-video" controls preload="auto" width="600">
             <source src="${videoUrl}" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>`;
-      setValue("content", updatedContent);
-      setIsDialogOpen(false);
-      handleSubmit(onSubmit)();  
-      toast.success("Video uploaded successfully!");
-  }, 3000); 
-
-    // Ensure the video element is available in the DOM
- // Delay slightly to ensure DOM updates
-  }}
-  onImageUpload={(imageUrl: string) => {
-    const currentContent = getValues("content");
-    const updatedContent = `${currentContent}
+                              setValue("content", updatedContent);
+                              setIsDialogOpen(false);
+                              // handleSubmit(onSubmit)();
+                              toast.success("Video uploaded successfully!");
+                            }, 3000);
+                          }}
+                          onImageUpload={(imageUrl: string) => {
+                            const currentContent = getValues("content");
+                            const updatedContent = `${currentContent}
       <div class="image-container">
         <img src="${imageUrl}" alt="Uploaded image" width="600" />
       </div>`;
-    setValue("content", updatedContent);
-    setIsDialogOpen(false);
-    toast.success("Image uploaded successfully!");
-  }}
-/>
-
-        </DialogContent>
-      </Dialog>
-      <FormMessage>
-        {errors.content && "Content is required"}
-      </FormMessage>
-    </FormItem>
-  )}
-/>
-
+                            setValue("content", updatedContent);
+                            setIsDialogOpen(false);
+                            toast.success("Image uploaded successfully!");
+                          }}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                    <FormMessage>
+                      {errors.content && "Content is required"}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
 
               {error && <div style={{ color: "red" }}>{error}</div>}
               {loading ? (
