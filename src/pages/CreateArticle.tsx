@@ -85,7 +85,6 @@ const CreateArticle = () => {
       .then((response) => {
         const id = response?.data?.id;
         if (id) {
-         
           dispatch(ArticleFlag(true));
           toast.success("Post created successfully!");
           // form.reset();
@@ -122,10 +121,10 @@ const CreateArticle = () => {
         customVideoTag
       );
       makeArticleAPICall(data.title || "Untitled Post", contentForApiCall);
-      // form.reset();
+      form.reset();
     } else {
       // makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
-      // toast.error("missing content");
+      // toast.error("here call rejected");
     }
   };
 
@@ -174,6 +173,7 @@ const CreateArticle = () => {
                     </FormLabel>
                     <FormControl>
                       <Editor
+                        // onClick={ e => {e.stopPropagation()}}
                         apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
                         value={field.value}
                         onEditorChange={(content: string) => {
@@ -216,6 +216,7 @@ const CreateArticle = () => {
                                   document.createElement("button");
                                 insertButton.textContent =
                                   "Insert Video or Image";
+                                insertButton.type = "button";
                                 insertButton.style.marginLeft = "8px";
                                 insertButton.style.padding = "4px 8px";
                                 insertButton.style.backgroundColor = "#FFC107";
@@ -224,7 +225,9 @@ const CreateArticle = () => {
                                 insertButton.style.cursor = "pointer";
                                 insertButton.style.borderRadius = "4px";
 
-                                insertButton.addEventListener("click", () => {
+                                insertButton.addEventListener("click", (e) => {
+                                  e.stopPropagation(); // Prevent propagation
+                                  e.preventDefault(); // Prevent any default form submission
                                   setIsDialogOpen(true);
                                 });
 
@@ -240,7 +243,10 @@ const CreateArticle = () => {
                       <DialogTrigger>
                         <Button className="hidden" />
                       </DialogTrigger>
-                      <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
+                      <DialogContent
+                        
+                        className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center"
+                      >
                         <Test
                           onVideoUpload={(videoUrl: string) => {
                             setTimeout(() => {
