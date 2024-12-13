@@ -99,6 +99,7 @@ const CreateArticle = () => {
       .finally(() => {
         setLoading(false);
       });
+      
   };
 
   const onSubmit = (data: FormData) => {
@@ -258,10 +259,11 @@ const CreateArticle = () => {
           </video>
         </div>`;
                               setValue("content", updatedContent);
+                              console.log(updatedContent,"datttttttttttttttttt")
                               setIsDialogOpen(false);
                               // handleSubmit(onSubmit)();
                               toast.success("Video uploaded successfully!");
-                            }, 3000);
+                            }, 5000);
                           }}
                           onImageUpload={(imageUrl: string) => {
                             const currentContent = getValues("content");

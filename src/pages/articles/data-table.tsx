@@ -19,6 +19,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import he from "he";
 
 import {
   Table,
@@ -68,7 +69,11 @@ export function DataTable<TData, TValue>({
     },
   });
 
-
+  function decodeHtmlEntities(text: string): string {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = text;
+    return textarea.value;
+  }
   return (
     <div>
       <div className="flex-1 text-sm text-muted-foreground">
@@ -142,8 +147,10 @@ export function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+                    {typeof flexRender(cell.column.columnDef.cell, cell.getContext()) === "string"
+                      ? decodeHtmlEntities(flexRender(cell.column.columnDef.cell, cell.getContext()) as string)
+                      : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                   ))}
                 </TableRow>
               ))

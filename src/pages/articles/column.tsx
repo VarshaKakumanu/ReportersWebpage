@@ -88,7 +88,7 @@ export const columns: ColumnDef<Payment>[] = [
     ></DialogTitle>
     <DialogDescription className="flex justify-center items-center">
       <article
-        className="news-article w-full max-w-4xl p-4 text-gray-800"
+        className="w-full max-w-4xl p-4 text-gray-800"
         dangerouslySetInnerHTML={{ __html: payment?.content }}
       ></article>
     </DialogDescription>
