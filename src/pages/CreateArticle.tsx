@@ -124,7 +124,7 @@ const CreateArticle = () => {
       form.reset();
     } else {
       // makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
-      // toast.error("here call rejected");
+      toast.error("Missing video content");
     }
   };
 
@@ -171,7 +171,7 @@ const CreateArticle = () => {
                     <FormLabel>
                       <p>Content</p>
                     </FormLabel>
-                    <FormControl>
+                    <FormControl className="shadow-lg">
                       <Editor
                         // onClick={ e => {e.stopPropagation()}}
                         apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
@@ -244,7 +244,6 @@ const CreateArticle = () => {
                         <Button className="hidden" />
                       </DialogTrigger>
                       <DialogContent
-                        
                         className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center"
                       >
                         <Test
