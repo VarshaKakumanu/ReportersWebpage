@@ -12,9 +12,10 @@ import { toast } from "sonner";
 interface TestProps {
   onVideoUpload: (videoUrl: string) => void;
   onImageUpload: (imageUrl: string) => void;
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
+const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpen }) => {
   const [uppy, setUppy] = useState<Uppy | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const curtime = Math.ceil(Date.now() / 1000);
@@ -61,12 +62,32 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
       });
   };
 
+  const calculateChunkSize = (fileSize: number): number => {
+    if (fileSize <= 50 * 1024 * 1024 * 1024) {
+      // Files larger than 5GB
+      return 5 * 1024 * 1024; // 500MB
+    } else if (fileSize <= 500 * 1024 * 1024 * 1024) {
+      // Files between 1GB and 5GB
+      return 25 * 1024 * 1024; // 100MB
+    } else if (fileSize <= 2048  * 1024 * 1024) {
+      // Files smaller than 1GB
+      return 50 * 1024 * 1024; // 10MB
+
+    }else{
+      return 100 * 1024 * 1024;
+    }
+  };
+  
+  // Example usage in the component
+  const fileSize = 10 * 1024 * 1024 * 1024; 
+  
+
   useEffect(() => {
     const uppyInstance = new Uppy({
       debug: true,
-      autoProceed: false,
+      autoProceed: true,
       restrictions: {
-        maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
+        maxFileSize: fileSize, // 10GB
         allowedFileTypes: ["video/*", "image/*"],
       },
     });
@@ -78,13 +99,23 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
       showProgressDetails: true,
       proudlyDisplayPoweredByUppy: false,
     });
+    
   
     // Configure Tus Plugin
     uppyInstance.use(Tus, {
       endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
-      retryDelays: [1000, 3000, 5000],
-      chunkSize: 100 * 1024 * 1024, // Set chunk size to 10MB
+      retryDelays: [0, 1000, 3000, 5000, 10000],
+      chunkSize: 50 * 1024 * 1024, // Set chunk size to 10MB
     });
+
+        // Adjust chunk size dynamically on file addition
+        uppyInstance.on("file-added", (file:any) => {
+          const dynamicChunkSize = calculateChunkSize(file.size); // Calculate chunk size dynamically
+          uppyInstance.getPlugin("Tus")?.setOptions({ chunkSize: dynamicChunkSize });
+          console.log(
+            `Chunk size set to: ${dynamicChunkSize / (1024 * 1024)} MB for file: ${file.name}`
+          );
+        });
 
      // Retry Upload Logic
      const retryUpload = (fileId: string) => {
@@ -105,8 +136,15 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
           const finalUploadedUrl = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/${curtime}/${file.name}`;
           onVideoUpload(finalUploadedUrl);
           makeMediaAPICall(finalUploadedUrl);
+       
         }
       });
+    });
+
+    uppyInstance.on('upload-success', (result:any) => {
+      //  setIsDialogOpen(false)
+      console.log('successful files:', result.successful);
+      console.log('failed files:', result.failed);
     });
   
     // Error Event

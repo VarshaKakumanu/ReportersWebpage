@@ -69,10 +69,10 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  function decodeHtmlEntities(text: string): string {
-    const textarea = document.createElement("textarea");
-    textarea.innerHTML = text;
-    return textarea.value;
+  function decodeHtmlEntities(str: string): string {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = str;
+    return txt.value;
   }
   return (
     <div>
@@ -146,11 +146,12 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                    {typeof flexRender(cell.column.columnDef.cell, cell.getContext()) === "string"
-                      ? decodeHtmlEntities(flexRender(cell.column.columnDef.cell, cell.getContext()) as string)
-                      : flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                   <TableCell key={cell.id}>
+                   {(() => {
+                     const content = flexRender(cell.column.columnDef.cell, cell.getContext());
+                     return typeof content === "string" ? decodeHtmlEntities(content) : content;
+                   })()}
+                 </TableCell>
                   ))}
                 </TableRow>
               ))
