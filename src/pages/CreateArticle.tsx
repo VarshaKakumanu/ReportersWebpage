@@ -62,7 +62,7 @@ const CreateArticle = () => {
     return `Basic ${encodedCredentials}`;
   };
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const makeArticleAPICall = (title: string, content: string) => {
     const authHeader = createBasicAuthHeader();
@@ -248,16 +248,17 @@ const CreateArticle = () => {
                         className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center"
                       >
                         <Test
+                      setIsDialogOpen={setIsDialogOpen}
                           onVideoUpload={(videoUrl: string) => {
                             setTimeout(() => {
                               const currentContent = getValues("content");
                               const updatedContent = `${currentContent}
-        <div class="video-container">
-          <video id="uploaded-video" controls preload="auto" width="600">
+       
+          <video class="video-container" id="uploaded-video" controls preload="auto" width="600">
             <source src="${videoUrl}" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-        </div>`;
+        `;
                               setValue("content", updatedContent);
                               console.log(updatedContent,"datttttttttttttttttt")
                               setIsDialogOpen(false);
