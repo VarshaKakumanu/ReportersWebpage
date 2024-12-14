@@ -266,6 +266,7 @@ const CreateArticle = () => {
                             }, 5000);
                           }}
                           onImageUpload={(imageUrl: string) => {
+                            console.log(imageUrl,"kkkkkkkkkkkkkk")
                             const currentContent = getValues("content");
                             const updatedContent = `${currentContent}
       <div class="image-container">

@@ -8,6 +8,9 @@ import { ArrowUpDown} from "lucide-react";
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
+import ArticleDetail from "../ArticleDetails";
+
+
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Payment = {
@@ -69,33 +72,27 @@ export const columns: ColumnDef<Payment>[] = [
 
 
 <Dialog>
-  
-<DialogTrigger>
-  <Button
-    variant="default"
-    onClick={() => {
-      navigator.clipboard.writeText(payment.id.toString());
-    }}
-  >
-    View
-  </Button>
-</DialogTrigger>
-<DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
-  <DialogHeader className="h-[34rem]">
-    <DialogTitle
-      className="flex justify-center items-center text-2xl font-bold leading-tight"
-      dangerouslySetInnerHTML={{ __html: payment?.title }}
-    ></DialogTitle>
-    <DialogDescription className="flex justify-center items-center">
-      <article
-        className="w-full max-w-4xl p-4 text-gray-800"
-        dangerouslySetInnerHTML={{ __html: payment?.content }}
-      ></article>
-    </DialogDescription>
-  </DialogHeader>
-</DialogContent>
-
+  <DialogTrigger>
+    <Button
+      variant="default"
+      onClick={() => {
+        navigator.clipboard.writeText(payment.id.toString());
+        console.log(payment.id, "Copied to clipboard");
+      }}
+    >
+      View
+    </Button>
+  </DialogTrigger>
+  <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
+    <DialogHeader className="h-[34rem]">
+      <DialogDescription className="flex justify-center items-center">
+        <ArticleDetail paymentId={payment.id} />
+      </DialogDescription>
+    </DialogHeader>
+  </DialogContent>
 </Dialog>
+
+
       );
     },
   },
