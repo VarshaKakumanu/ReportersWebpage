@@ -77,13 +77,12 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
       target: "#uppy-dashboard",
       showProgressDetails: true,
       proudlyDisplayPoweredByUppy: false,
-      showLinkToFileUploadResult: false,
     });
   
     // Configure Tus Plugin
     uppyInstance.use(Tus, {
       endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
-      retryDelays:[0, 1000, 3000, 5000, 10000],
+      retryDelays: [1000, 3000, 5000],
       chunkSize: 100 * 1024 * 1024, // Set chunk size to 10MB
     });
 
@@ -95,10 +94,10 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
         uppyInstance.retryUpload(fileId);
       }
     };
+
   
-    
     // Success Event
-    uppyInstance.on("upload-success", (result: any) => {
+    uppyInstance.on("complete", (result: any) => {
       result.successful.forEach((file: any) => {
         if (file.type.startsWith("image/")) {
           uploadImageToWP(file.data);
@@ -109,18 +108,20 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload }) => {
         }
       });
     });
-
-        // Error Event
-        uppyInstance.on("upload-error", (file:any, error) => {
-          console.error(`Upload failed for file: ${file.name}`, error);
-    
-          // Implement retry logic
-          setTimeout(() => {
-            retryUpload(file.id);
-          }, 5000); // Retry after 5 seconds
-        });
   
+    // Error Event
+   // Error Event
+   uppyInstance.on("upload-error", (file:any, error) => {
+    console.error(`Upload failed for file: ${file.name}`, error);
 
+    // Implement retry logic
+    setTimeout(() => {
+      retryUpload(file.id);
+    }, 5000); // Retry after 5 seconds
+  });
+
+    
+  
     setUppy(uppyInstance);
   
     // Cleanup
