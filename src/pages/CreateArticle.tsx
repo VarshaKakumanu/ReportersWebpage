@@ -104,30 +104,37 @@ const CreateArticle = () => {
 
   const onSubmit = (data: FormData) => {
     let contentWithVideo = data.content;
+  
     if (!contentWithVideo) {
       toast.error("Form not submitted: Content is required");
       return;
     }
-
+  
+    // Regex to match all video tags
     const videoTagRegex =
-      /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/is;
-
-    const matchResult = videoTagRegex.exec(contentWithVideo);
-    if (matchResult) {
-      const videoUrl = matchResult[1];
-      const fileType = matchResult[2].split("/")[1];
-      const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
-      const contentForApiCall = contentWithVideo.replace(
-        videoTagRegex,
-        customVideoTag
-      );
-      makeArticleAPICall(data.title || "Untitled Post", contentForApiCall);
+      /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/gis;
+  
+    // Replace all video tags with custom format
+    let matchResult = [...contentWithVideo.matchAll(videoTagRegex)];
+    if (matchResult.length > 0) {
+      matchResult.forEach((match) => {
+        const videoUrl = match[1];
+        const fileType = match[2].split("/")[1];
+        const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
+        contentWithVideo = contentWithVideo.replace(match[0], customVideoTag);
+      });
+  
+      // Make API call with modified content
+      makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       form.reset();
+      toast.success("Article posted successfully!");
     } else {
-      // makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
-      toast.error("Missing video content");
+      // If no video tag is present, submit content as is
+      makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
+      toast.success("Article posted successfully!");
     }
   };
+  
 
   useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response) => {
@@ -252,14 +259,15 @@ const CreateArticle = () => {
                           onVideoUpload={(videoUrl: string) => {
                             setTimeout(() => {
                               const currentContent = getValues("content");
-                              const updatedContent = `${currentContent}
-       
-          <video class="video-container" id="uploaded-video" controls preload="auto" width="600">
-            <source src="${videoUrl}" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        `;
-                              setValue("content", updatedContent);
+                              const videoTemplate = `
+                              <video class="video-container" id="uploaded-video-${Date.now()}" controls preload="auto" width="600">
+                                <source src="${videoUrl}" type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                            `;
+                            const updatedContent = `${currentContent}\n${videoTemplate}`; // Append new video
+                        
+                            setValue("content", updatedContent);
                               console.log(updatedContent,"datttttttttttttttttt")
                               setIsDialogOpen(false);
                               // handleSubmit(onSubmit)();

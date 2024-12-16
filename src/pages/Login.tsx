@@ -120,7 +120,7 @@ const navigate = useNavigate();
       .then(userResponse => {
         const userResult = userResponse?.data;
   
-        if (userResult?.username && userResponse.status == 200) {
+        if (userResult?.username && userResponse?.status == 200) {
           const loginParamDispatch = Array.from(params.entries());
           dispatch(loginPram(loginParamDispatch));
           dispatch(updateUserDetails(userResult));
