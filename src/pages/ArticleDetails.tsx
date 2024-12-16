@@ -11,10 +11,8 @@ import React from "react";
 // Define the data types
 interface Article {
   id: number;
-  title: string;
-  description?: string;
-  content: string;
-  rendered?:string;
+  title: { rendered: string };
+  content: { rendered: string };
 }
 
 export default function ArticleDetail({ paymentId }: { paymentId: number }) {
@@ -23,11 +21,25 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
   const [error, setError] = useState<string | null>(null);
   const loginParams = useSelector((state: any) => state.loginParams);
 
+  // Create Basic Auth Header
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials);
     return `Basic ${encodedCredentials}`;
   };
+
+  // Decode HTML Entities
+  function decodeHtmlEntities(html: string): string {
+    return html
+      .replace(/&amp;/g, "&")         // Decode '&'
+      .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
+      .replace(/&#8216;/g, "‘")       // Decode left single quote
+      .replace(/&#8217;/g, "’")       // Decode right single quote
+      .replace(/&#8220;/g, "“")       // Decode left double quote
+      .replace(/&#8221;/g, "”")       // Decode right double quote
+      .replace(/&#39;/g, "'")         // Decode straight single quote
+      .replace(/&quot;/g, '"');       // Decode straight double quote
+  }
 
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
@@ -78,15 +90,25 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
   return (
     <div className="flex flex-col md:flex-row md:justify-between m-2 p-2">
       {article ? (
-        <Card className="m-4 p-4 w-full bg-purple-100">
-          <div className="flex flex-col items-center justify-between gap-4">
-            <h1 className="font-sans text-xl md:text-4xl lg:text-6xl">{article?.title.rendered}</h1>
-            <div
-              className="news-article  text-sm md:text-base"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article?.content.rendered) }}
-            />
-          </div>
-        </Card>
+       <Card className="m-4 p-4 w-full bg-purple-100 overflow-x-auto">
+       <div className="flex flex-col items-center justify-between gap-4">
+         {/* Decode and display title */}
+         <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-[18rem] md:w-[40rem] lg:w-[52rem]">
+           {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
+         </h1>
+     
+         {/* Decode and sanitize content */}
+         <div
+           className="news-article text-sm md:text-base break-words w-[18rem] md:w-[40rem] lg:w-[52rem]"
+           dangerouslySetInnerHTML={{
+             __html: DOMPurify.sanitize(
+               decodeHtmlEntities(article?.content?.rendered || "No content available")
+             ),
+           }}
+         />
+       </div>
+     </Card>
+     
       ) : (
         <div>No article found</div>
       )}

@@ -23,7 +23,7 @@ import Test from "./Test";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 // import { Icons } from "@/components/icons";
 import { useTheme } from "@/hooks/useTheme";
-
+import { debounce } from "lodash";
 type FormData = {
   title: string;
   content: string;
@@ -45,6 +45,7 @@ const CreateArticle = () => {
   const loginParams = useSelector((state: any) => state.loginParams);
   const dispatch = useDispatch();
   const { theme } = useTheme();
+  
 
   // const editorSkin = theme === "dark" ? "oxide-dark" : "oxide";
   // const editorContentCss = theme === "dark" ? "dark" : "default";
@@ -86,7 +87,7 @@ const CreateArticle = () => {
         const id = response?.data?.id;
         if (id) {
           dispatch(ArticleFlag(true));
-          toast.success("Post created successfully!");
+          // toast.success("Post created successfully!");
           // form.reset();
         } else {
           toast.error("Failed to post");
@@ -103,6 +104,7 @@ const CreateArticle = () => {
   };
 
   const onSubmit = (data: FormData) => {
+    console.log(data,"dataaaaa")
     let contentWithVideo = data.content;
   
     if (!contentWithVideo) {
@@ -142,6 +144,21 @@ const CreateArticle = () => {
       setS3_base_url(S3Url);
     });
   }, [getValues, videoUrl]);
+
+  let uploadCount = 0;
+  let uploadType = ""; // Track total video uploads
+
+  const showUploadToast = debounce(() => {
+    if (uploadCount === 1) {
+      toast.success(`${uploadType === "image" ? "1 Image uploaded successfully!" : "1 Video uploaded successfully!"}`);
+    } else if (uploadCount > 1) {
+      toast.success(
+        `${uploadType === "image" ? "Images uploaded successfully!" : `${uploadCount} Videos uploaded successfully!`}`
+      );
+    }
+    uploadCount = 0; // Reset count after showing toast
+    uploadType = ""; // Reset upload type
+  }, 1000);
 
   return (
     <div className="bg-purple-100 text-foreground flex items-center justify-evenly max-h-full">
@@ -256,24 +273,26 @@ const CreateArticle = () => {
                       >
                         <Test
                       setIsDialogOpen={setIsDialogOpen}
-                          onVideoUpload={(videoUrl: string) => {
-                            setTimeout(() => {
-                              const currentContent = getValues("content");
-                              const videoTemplate = `
-                              <video class="video-container" id="uploaded-video-${Date.now()}" controls preload="auto" width="600">
-                                <source src="${videoUrl}" type="video/mp4" />
-                                Your browser does not support the video tag.
-                              </video>
-                            `;
-                            const updatedContent = `${currentContent}\n${videoTemplate}`; // Append new video
-                        
-                            setValue("content", updatedContent);
-                              console.log(updatedContent,"datttttttttttttttttt")
-                              setIsDialogOpen(false);
-                              // handleSubmit(onSubmit)();
-                              toast.success("Video uploaded successfully!");
-                            }, 5000);
-                          }}
+                      onVideoUpload={(videoUrl: string) => {
+                        setTimeout(() => {
+                          const currentContent = getValues("content");
+                          const videoTemplate = `
+                            <video class="video-container" id="uploaded-video-${Date.now()}" controls preload="auto" width="600">
+                              <source src="${videoUrl}" type="video/mp4" />
+                              Your browser does not support the video tag.
+                            </video>
+                          `;
+                      
+                          // Append video to content
+                          const updatedContent = `${currentContent}\n${videoTemplate}`;
+                          setValue("content", updatedContent);
+                          uploadCount += 1;  // Increment upload counter
+                          uploadType = "video"; // Set upload type
+                          setIsDialogOpen(false);
+                          showUploadToast();
+                        }, 5000); // Simulate processing delay
+                      }}
+                      
                           onImageUpload={(imageUrl: string) => {
                             console.log(imageUrl,"kkkkkkkkkkkkkk")
                             const currentContent = getValues("content");
@@ -282,8 +301,11 @@ const CreateArticle = () => {
         <img src="${imageUrl}" alt="Uploaded image" width="600" />
       </div>`;
                             setValue("content", updatedContent);
-                            setIsDialogOpen(false);
-                            toast.success("Image uploaded successfully!");
+                             uploadCount += 1;  // Increment upload counter
+  uploadType = "image"; // Set upload type
+  setIsDialogOpen(false);
+  showUploadToast();
+                     
                           }}
                         />
                       </DialogContent>

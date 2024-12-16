@@ -84,7 +84,7 @@ export const columns: ColumnDef<Payment>[] = [
     </Button>
   </DialogTrigger>
   <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
-    <DialogHeader className="h-[34rem]">
+    <DialogHeader className="h-[34rem] lg:h-[42rem] 2xl:h-[60rem]">
       <DialogDescription className="flex justify-center items-center">
         <ArticleDetail paymentId={payment.id} />
       </DialogDescription>

@@ -142,7 +142,9 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
     });
 
     uppyInstance.on('upload-success', (result:any) => {
-      //  setIsDialogOpen(false)
+      setTimeout(() => {
+        setIsDialogOpen(false)
+      }, 3000);
       console.log('successful files:', result.successful);
       console.log('failed files:', result.failed);
     });
@@ -198,8 +200,8 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
-      <div id="uppy-dashboard" className="w-full max-w-xl z-10"></div>
+    <div className="flex flex-col items-center  h-[26rem] ">
+      <div id="uppy-dashboard" className=" max-w-xl  w-[18rem] md:w-[40rem] lg:w-[52rem] z-10 "></div>
     </div>
   );
 };

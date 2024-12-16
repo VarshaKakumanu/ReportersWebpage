@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <Provider store={store} >
     <PersistGate loading={null} persistor={persistor}>
       <App />
-      <Toaster />
+      <Toaster position="top-right" />
     </PersistGate>
     </Provider>
   </React.StrictMode>

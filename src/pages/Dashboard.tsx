@@ -31,6 +31,19 @@ const Dashboard: React.FC = () => {
   const ArticlesFalg = useSelector((state:any)=>state.articleFlag)
 const navigate = useNavigate();
 
+function decodeHtmlEntities(html: string): string {
+  return html
+    .replace(/&amp;/g, "&")         // Decode '&'
+    .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
+    .replace(/&#8216;/g, "‘")       // Decode left single quote
+    .replace(/&#8217;/g, "’")       // Decode right single quote
+    .replace(/&#8220;/g, "“")       // Decode left double quote
+    .replace(/&#8221;/g, "”")       // Decode right double quote
+    .replace(/&#39;/g, "'")         // Decode straight single quote
+    .replace(/&quot;/g, '"');       // Decode straight double quote
+}
+
+
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
     const params = new URLSearchParams({
@@ -61,10 +74,10 @@ const navigate = useNavigate();
        
         const formattedData = response?.data?.map((item: any) => ({
           id: item?.id,
-          title: item?.title?.rendered,
+          title: decodeHtmlEntities(item?.title?.rendered),
           status: item?.status, // Assuming all fetched articles are published
           email: item?.author_email || userDetails?.email, // Replace with actual email field if available
-          content:item?.content?.rendered
+          content: decodeHtmlEntities(item?.content?.rendered) 
         }));
         setArticles(formattedData);
         setLoading(false);  // Set loading to false after data is fetched
