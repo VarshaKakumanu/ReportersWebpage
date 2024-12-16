@@ -142,7 +142,9 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
     });
 
     uppyInstance.on('upload-success', (result:any) => {
-      //  setIsDialogOpen(false)
+      setTimeout(() => {
+        setIsDialogOpen(false)
+      }, 3000);
       console.log('successful files:', result.successful);
       console.log('failed files:', result.failed);
     });

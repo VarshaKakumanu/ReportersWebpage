@@ -35,10 +35,12 @@ function decodeHtmlEntities(html: string): string {
   return html
     .replace(/&amp;/g, "&")         // Decode '&'
     .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
-    .replace(/&#8220;/g, "“")       // Decode opening quotation mark
-    .replace(/&#8221;/g, "”")       // Decode closing quotation mark
-    .replace(/&#39;/g, "'")         // Decode single quote
-    .replace(/&quot;/g, '"');       // Decode double quote
+    .replace(/&#8216;/g, "‘")       // Decode left single quote
+    .replace(/&#8217;/g, "’")       // Decode right single quote
+    .replace(/&#8220;/g, "“")       // Decode left double quote
+    .replace(/&#8221;/g, "”")       // Decode right double quote
+    .replace(/&#39;/g, "'")         // Decode straight single quote
+    .replace(/&quot;/g, '"');       // Decode straight double quote
 }
 
 

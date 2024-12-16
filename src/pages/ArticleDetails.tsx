@@ -31,12 +31,14 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
   // Decode HTML Entities
   function decodeHtmlEntities(html: string): string {
     return html
-      .replace(/&amp;/g, "&")
-      .replace(/&#8211;/g, "–")
-      .replace(/&#8220;/g, "“")
-      .replace(/&#8221;/g, "”")
-      .replace(/&#39;/g, "'")
-      .replace(/&quot;/g, '"');
+      .replace(/&amp;/g, "&")         // Decode '&'
+      .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
+      .replace(/&#8216;/g, "‘")       // Decode left single quote
+      .replace(/&#8217;/g, "’")       // Decode right single quote
+      .replace(/&#8220;/g, "“")       // Decode left double quote
+      .replace(/&#8221;/g, "”")       // Decode right double quote
+      .replace(/&#39;/g, "'")         // Decode straight single quote
+      .replace(/&quot;/g, '"');       // Decode straight double quote
   }
 
   useEffect(() => {
@@ -88,24 +90,25 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
   return (
     <div className="flex flex-col md:flex-row md:justify-between m-2 p-2">
       {article ? (
-        <Card className="m-4 p-4 w-full bg-purple-100">
-          <div className="flex flex-col items-center justify-between gap-4">
-            {/* Decode and display title */}
-            <h1 className="font-sans text-xl md:text-4xl lg:text-6xl">
-              {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
-            </h1>
-
-            {/* Decode and sanitize content */}
-            <div
-              className="news-article text-sm md:text-base"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
-                  decodeHtmlEntities(article?.content?.rendered || "No content available")
-                ),
-              }}
-            />
-          </div>
-        </Card>
+       <Card className="m-4 p-4 w-full bg-purple-100 overflow-x-auto">
+       <div className="flex flex-col items-center justify-between gap-4">
+         {/* Decode and display title */}
+         <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-[18rem] md:w-[40rem] lg:w-[52rem]">
+           {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
+         </h1>
+     
+         {/* Decode and sanitize content */}
+         <div
+           className="news-article text-sm md:text-base break-words w-[18rem] md:w-[40rem] lg:w-[52rem]"
+           dangerouslySetInnerHTML={{
+             __html: DOMPurify.sanitize(
+               decodeHtmlEntities(article?.content?.rendered || "No content available")
+             ),
+           }}
+         />
+       </div>
+     </Card>
+     
       ) : (
         <div>No article found</div>
       )}
