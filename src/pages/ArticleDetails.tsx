@@ -11,10 +11,8 @@ import React from "react";
 // Define the data types
 interface Article {
   id: number;
-  title: string;
-  description?: string;
-  content: string;
-  rendered?:string;
+  title: { rendered: string };
+  content: { rendered: string };
 }
 
 export default function ArticleDetail({ paymentId }: { paymentId: number }) {
@@ -23,11 +21,23 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
   const [error, setError] = useState<string | null>(null);
   const loginParams = useSelector((state: any) => state.loginParams);
 
+  // Create Basic Auth Header
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials);
     return `Basic ${encodedCredentials}`;
   };
+
+  // Decode HTML Entities
+  function decodeHtmlEntities(html: string): string {
+    return html
+      .replace(/&amp;/g, "&")
+      .replace(/&#8211;/g, "–")
+      .replace(/&#8220;/g, "“")
+      .replace(/&#8221;/g, "”")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"');
+  }
 
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
@@ -80,10 +90,19 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
       {article ? (
         <Card className="m-4 p-4 w-full bg-purple-100">
           <div className="flex flex-col items-center justify-between gap-4">
-            <h1 className="font-sans text-xl md:text-4xl lg:text-6xl">{article?.title.rendered}</h1>
+            {/* Decode and display title */}
+            <h1 className="font-sans text-xl md:text-4xl lg:text-6xl">
+              {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
+            </h1>
+
+            {/* Decode and sanitize content */}
             <div
-              className="news-article  text-sm md:text-base"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article?.content.rendered) }}
+              className="news-article text-sm md:text-base"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  decodeHtmlEntities(article?.content?.rendered || "No content available")
+                ),
+              }}
             />
           </div>
         </Card>

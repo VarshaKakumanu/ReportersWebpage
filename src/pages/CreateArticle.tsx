@@ -86,7 +86,7 @@ const CreateArticle = () => {
         const id = response?.data?.id;
         if (id) {
           dispatch(ArticleFlag(true));
-          toast.success("Post created successfully!");
+          // toast.success("Post created successfully!");
           // form.reset();
         } else {
           toast.error("Failed to post");
@@ -103,6 +103,7 @@ const CreateArticle = () => {
   };
 
   const onSubmit = (data: FormData) => {
+    console.log(data,"dataaaaa")
     let contentWithVideo = data.content;
   
     if (!contentWithVideo) {
