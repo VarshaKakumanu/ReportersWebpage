@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 # Set the working directory
 WORKDIR /usr/src/reportersapp
@@ -8,9 +8,10 @@ RUN npm install -g npm@10.8.2
 
 # Clean npm cache and install dependencies
 COPY package*.json ./
-RUN npm cache clean --force \
+RUN rm -rf /root/.npm \
+    && npm cache clean --force \
     && npm install --legacy-peer-deps \
-    && npm install --save-dev vite @vitejs/plugin-react
+    && npm install --save-dev vite@4.5.0 @vitejs/plugin-react@4.1.0
 
 # Copy the rest of the application files
 COPY . .
