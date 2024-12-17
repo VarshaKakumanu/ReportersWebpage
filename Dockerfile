@@ -9,8 +9,10 @@ COPY package.json package-lock.json ./
 
 # Clean npm cache and install dependencies
 RUN npm cache clean --force \
-    && npm install -g npm@latest \
-    && npm install
+    && npm install -g npm@11.0.0 \
+    && npm install --legacy-peer-deps
+
+
 
 # Copy the rest of the application files
 COPY . .
