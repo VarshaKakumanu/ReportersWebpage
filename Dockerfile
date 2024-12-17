@@ -8,9 +8,10 @@ WORKDIR /usr/src/reportersapp
 COPY package*.json ./
 
 # Install the dependencies
-RUN npm install \
-
+RUN npm cache clean --force \
+    && npm install --legacy-peer-deps \
     && npm install --save-dev vite @vitejs/plugin-react
+
 
 # Copy the rest of the application files
 COPY . .
