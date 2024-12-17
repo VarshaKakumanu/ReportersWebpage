@@ -161,7 +161,7 @@ const CreateArticle = () => {
   }, 1000);
 
   return (
-    <div className="bg-slate-100 text-foreground flex items-center justify-evenly max-h-full">
+    <div className="bg-purple-100 text-foreground flex items-center justify-evenly max-h-full">
       <div className="w-full divide-y divide-slate-300">
         <div className="w-full flex">
           <Form {...form}>
@@ -324,14 +324,14 @@ const CreateArticle = () => {
                   Please wait
                 </Button>
               ) : (
-                <div className="flex gap-2 justify-end">
-                  {/* <Button
+                <div className="flex gap-2 justify-between">
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={handleSubmit(onSubmit)}
                   >
                     Save as Draft
-                  </Button> */}
+                  </Button>
 
                   <div className="flex gap-2">
                     <Button

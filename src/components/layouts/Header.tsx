@@ -104,7 +104,7 @@ export function Header() {
         </div>
         {/* mobile */}
         <Sheet open={open} onOpenChange={setOpen}>
-          {/* <SheetTrigger asChild>
+          <SheetTrigger asChild>
             <Button
               variant="ghost"
               className="mr-4 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
@@ -112,7 +112,7 @@ export function Header() {
               <ViewVerticalIcon className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
             </Button>
-          </SheetTrigger> */}
+          </SheetTrigger>
           <SheetContent side="left" className="pr-0 sm:max-w-xs">
             <NavLink
               to="/"
@@ -210,6 +210,7 @@ export function Header() {
         </Sheet>
         <a href="/" className="mr-6 flex items-center space-x-2 md:hidden">
         <Icons.logo className="w-8 h-8" /> <p className="font-bold text-base ">ETV Bharat</p>
+          <span className="font-bold inline-block">{appConfig.name}</span>
         </a>
         {/* right */}
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
