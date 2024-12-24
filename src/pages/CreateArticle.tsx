@@ -269,7 +269,7 @@ const CreateArticle = () => {
                         <Button className="hidden" />
                       </DialogTrigger>
                       <DialogContent
-                        className=" h-[32rem] md:h-[44rem] rounded-md m-1 min-w-[44rem] overflow-y-scroll flex justify-center items-center"
+                        className=" h-full lg:h-[44rem] rounded-md m-1 min-w-[44rem] overflow-y-scroll flex justify-center items-center"
                       >
                         <Test
                       setIsDialogOpen={setIsDialogOpen}
@@ -323,14 +323,14 @@ const CreateArticle = () => {
                   Please wait
                 </Button>
               ) : (
-                <div className="flex gap-2 justify-between">
-                  <Button
+                <div className="flex gap-2 justify-end">
+                  {/* <Button
                     type="button"
                     variant="outline"
                     onClick={handleSubmit(onSubmit)}
                   >
                     Save as Draft
-                  </Button>
+                  </Button> */}
 
                   <div className="flex gap-2">
                     <Button

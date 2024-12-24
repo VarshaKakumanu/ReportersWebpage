@@ -64,25 +64,18 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
   };
 
   const calculateChunkSize = (fileSize: number): number => {
-    if (fileSize <= 10 * 1024 * 1024) {
-      // Files up to 10MB
-      return 1 * 1024 * 1024; // 1MB
-    } else if (fileSize <= 1024 * 1024 * 1024) {
-      // Files between 10MB and 1GB
-      return 10 * 1024 * 1024; // 10MB
-    } else if (fileSize <= 3 * 1024 * 1024 * 1024) {
-      // Files between 1GB and 3GB
-      return 25 * 1024 * 1024; // 25MB
-    } else if (fileSize <= 6 * 1024 * 1024 * 1024) {
-      // Files between 3GB and 6GB
-      return 45 * 1024 * 1024; // 50MB
-    } else if (fileSize <= 9 * 1024 * 1024 * 1024) {
-      // Files between 6GB and 9GB
-      return 75 * 1024 * 1024; // 75MB
-    } else {
-      // Files larger than 9GB
-      return 100 * 1024 * 1024; // 100MB
-    }
+    {
+      if (fileSize <= 50 * 1024 * 1024) { // Less than or equal to 50MB
+          return 5  * 1024 * 1024; // 5MB
+      } else if (fileSize <= 500  * 1024 * 1024) { // Between 50MB and 500MB
+          return 25  * 1024 * 1024; // 25MB
+      } else if (fileSize <= 2048  * 1024 * 1024) { // Between 500MB and 2GB
+          return 50 * 1024 * 1024; // 50MB
+      } else { // Greater than 2GB
+          return 100 * 1024 * 1024; // 100MB
+      }
+  }
+  
   };
   
   // Example usage in the component
@@ -112,7 +105,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
     uppyInstance.use(Tus, {
       endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
       retryDelays: [0, 1000, 3000, 5000, 10000],
-      chunkSize: 50 * 1024 * 1024, // Set chunk size to 10MB
+      chunkSize: calculateChunkSize(fileSize), // Set chunk size to 10MB
     });
 
         // Adjust chunk size dynamically on file addition
