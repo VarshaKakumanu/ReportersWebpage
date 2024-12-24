@@ -22,6 +22,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
   const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state: any) => state.loginParams);
 
+
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials);
@@ -145,12 +146,10 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
        
         }
       });
+      setIsDialogOpen(false);
     });
 
     uppyInstance.on('upload-success', (result:any) => {
-      setTimeout(() => {
-        // setIsDialogOpen(false)
-      }, 3000);
       console.log('successful files:', result.successful);
       console.log('failed files:', result.failed);
     });
