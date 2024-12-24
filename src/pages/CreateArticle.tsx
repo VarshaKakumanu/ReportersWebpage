@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import * as tus from "tus-js-client";
 import axios from "axios";
 import { toast } from "sonner";
 import React from "react";
@@ -21,8 +20,6 @@ import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
 import Test from "./Test";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-// import { Icons } from "@/components/icons";
-import { useTheme } from "@/hooks/useTheme";
 import { debounce } from "lodash";
 type FormData = {
   title: string;
@@ -39,13 +36,10 @@ const CreateArticle = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [upload] = useState<tus.Upload | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [s3_base_url, setS3_base_url] = useState("");
   const loginParams = useSelector((state: any) => state.loginParams);
   const dispatch = useDispatch();
-  const { theme } = useTheme();
-  
 
   // const editorSkin = theme === "dark" ? "oxide-dark" : "oxide";
   // const editorContentCss = theme === "dark" ? "dark" : "default";
@@ -100,22 +94,21 @@ const CreateArticle = () => {
       .finally(() => {
         setLoading(false);
       });
-      
   };
 
   const onSubmit = (data: FormData) => {
-    console.log(data,"dataaaaa")
+    console.log(data, "dataaaaa");
     let contentWithVideo = data.content;
-  
+
     if (!contentWithVideo) {
       toast.error("Form not submitted: Content is required");
       return;
     }
-  
+
     // Regex to match all video tags
     const videoTagRegex =
       /<video[^>]*>\s*<source\s+src=['"]([^'"]+)['"]\s+type=['"]([^'"]+)['"][^>]*>[\s\S]*?<\/video>/gis;
-  
+
     // Replace all video tags with custom format
     let matchResult = [...contentWithVideo.matchAll(videoTagRegex)];
     if (matchResult.length > 0) {
@@ -125,7 +118,6 @@ const CreateArticle = () => {
         const customVideoTag = `[video ${fileType}='${videoUrl}'][/video]`;
         contentWithVideo = contentWithVideo.replace(match[0], customVideoTag);
       });
-  
       // Make API call with modified content
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       form.reset();
@@ -135,8 +127,8 @@ const CreateArticle = () => {
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       toast.success("Article posted successfully!");
     }
+    form.reset();
   };
-  
 
   useEffect(() => {
     axios.get(`${BASE_URL}media/v1/path`).then((response) => {
@@ -150,10 +142,20 @@ const CreateArticle = () => {
 
   const showUploadToast = debounce(() => {
     if (uploadCount === 1) {
-      toast.success(`${uploadType === "image" ? "1 Image uploaded successfully!" : "1 Video uploaded successfully!"}`);
+      toast.success(
+        `${
+          uploadType === "image"
+            ? "1 Image uploaded successfully!"
+            : "1 Video uploaded successfully!"
+        }`
+      );
     } else if (uploadCount > 1) {
       toast.success(
-        `${uploadType === "image" ? "Images uploaded successfully!" : `${uploadCount} Videos uploaded successfully!`}`
+        `${
+          uploadType === "image"
+            ? "Images uploaded successfully!"
+            : `${uploadCount} Videos uploaded successfully!`
+        }`
       );
     }
     uploadCount = 0; // Reset count after showing toast
@@ -219,6 +221,7 @@ const CreateArticle = () => {
                             "visualblocks",
                             "wordcount",
                           ],
+                          resize: true,
                           placeholder: "Write Your Article Here..",
                           height: 220,
                           menubar: false,
@@ -268,43 +271,38 @@ const CreateArticle = () => {
                       <DialogTrigger>
                         <Button className="hidden" />
                       </DialogTrigger>
-                      <DialogContent
-                        className=" h-full lg:h-[44rem] rounded-md m-1 min-w-[44rem] overflow-y-scroll flex justify-center items-center"
-                      >
+                      <DialogContent className=" h-auto rounded-md m-1 min-w-auto overflow-y-scroll flex justify-center items-center">
                         <Test
-                      setIsDialogOpen={setIsDialogOpen}
-                      onVideoUpload={(videoUrl: string) => {
-                        setTimeout(() => {
-                          const currentContent = getValues("content");
-                          const videoTemplate = `
-                            <video class="video-container" id="uploaded-video-${Date.now()}" controls preload="auto" width="600">
+                          setIsDialogOpen={setIsDialogOpen}
+                          onVideoUpload={(videoUrl: string) => {
+                            setTimeout(() => {
+                              const currentContent = getValues("content");
+                              const videoTemplate = `
+                            <video loading="lazy" class="video-container" id="uploaded-video-${Date.now()}" controls preload="auto" width="600">
                               <source src="${videoUrl}" type="video/mp4" />
                               Your browser does not support the video tag.
                             </video>
                           `;
 
-                          const updatedContent = `${currentContent}\n${videoTemplate}`;
-                          setValue("content", updatedContent);
-                          uploadCount += 1;  // Increment upload counter
-                          uploadType = "video"; // Set upload type
-                          setIsDialogOpen(false);
-                          showUploadToast();
-                        }, 5000); // Simulate processing delay
-                      }}
-                      
+                              const updatedContent = `${currentContent}\n${videoTemplate}`;
+                              setValue("content", updatedContent);
+                              uploadCount += 1; // Increment upload counter
+                              uploadType = "video"; // Set upload type
+                              setIsDialogOpen(false);
+                              showUploadToast();
+                            }, 1000); // Simulate processing delay
+                          }}
                           onImageUpload={(imageUrl: string) => {
-                            console.log(imageUrl,"kkkkkkkkkkkkkk")
                             const currentContent = getValues("content");
                             const updatedContent = `${currentContent}
       <div class="image-container">
-        <img src="${imageUrl}" alt="Uploaded image" width="600" />
+        <img loading="lazy" src="${imageUrl}" alt="Uploaded image" width="600" />
       </div>`;
                             setValue("content", updatedContent);
-                             uploadCount += 1;  // Increment upload counter
-  uploadType = "image"; // Set upload type
-  setIsDialogOpen(false);
-  showUploadToast();
-                     
+                            uploadCount += 1; // Increment upload counter
+                            uploadType = "image"; // Set upload type
+                            setIsDialogOpen(false);
+                            showUploadToast();
                           }}
                         />
                       </DialogContent>
