@@ -269,7 +269,7 @@ const CreateArticle = () => {
                         <Button className="hidden" />
                       </DialogTrigger>
                       <DialogContent
-                        className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center"
+                        className=" h-[32rem] md:h-[44rem] rounded-md m-1 min-w-[44rem] overflow-y-scroll flex justify-center items-center"
                       >
                         <Test
                       setIsDialogOpen={setIsDialogOpen}
@@ -282,8 +282,7 @@ const CreateArticle = () => {
                               Your browser does not support the video tag.
                             </video>
                           `;
-                      
-                          // Append video to content
+
                           const updatedContent = `${currentContent}\n${videoTemplate}`;
                           setValue("content", updatedContent);
                           uploadCount += 1;  // Increment upload counter
