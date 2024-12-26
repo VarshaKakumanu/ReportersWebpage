@@ -31,16 +31,19 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination";
+import { useEffect } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  setPage,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -74,6 +77,11 @@ export function DataTable<TData, TValue>({
     txt.innerHTML = str;
     return txt.value;
   }
+
+  useEffect(() => {
+    setPage(table.getState().pagination.pageIndex + 1);
+  }, [table.getState().pagination.pageIndex]);
+
   return (
     <div>
       <div className="flex-1 text-sm text-muted-foreground">
@@ -166,27 +174,77 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious onClick={() => table.previousPage()} />
-            </PaginationItem>
-            {Array.from({ length: table.getPageCount() }, (_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  href="#"
-                  onClick={() => table.setPageIndex(index)}
-                  isActive={table.getState().pagination.pageIndex === index}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext onClick={() => table.nextPage()} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+      <Pagination>
+  <PaginationContent>
+    {/* Previous Button */}
+    <PaginationItem>
+      <PaginationPrevious
+        onClick={() => {
+          const currentPageIndex = table.getState().pagination.pageIndex;
+          if (currentPageIndex > 0) {
+            table.previousPage();
+            setPage(currentPageIndex);
+          } else {
+            // Optional: Wrap around to the last page
+            table.setPageIndex(table.getPageCount() - 1);
+            setPage(table.getPageCount());
+          }
+        }}
+      >
+        Previous
+      </PaginationPrevious>
+    </PaginationItem>
+
+    {/* Page Numbers */}
+    {Array.from({ length: table.getPageCount() }, (_, index) => (
+      <PaginationItem key={index}>
+        <PaginationLink
+          href="#"
+          onClick={() => {
+            table.setPageIndex(index); // Update table state
+            setPage(index + 1);       // Update parent state
+          }}
+          isActive={table.getState().pagination.pageIndex === index}
+          aria-current={
+            table.getState().pagination.pageIndex === index ? "page" : undefined
+          }
+        >
+          {index + 1}
+        </PaginationLink>
+      </PaginationItem>
+    ))}
+
+    {/* Optional Ellipsis (for large page counts) */}
+    {/* {table.getPageCount() > 5 && (
+      <PaginationItem>
+        <PaginationEllipsis />
+      </PaginationItem>
+    )} */}
+
+    {/* Next Button */}
+    <PaginationItem>
+      <PaginationNext
+        onClick={() => {
+          const currentPageIndex = table.getState().pagination.pageIndex;
+          const totalPageCount = table.getPageCount();
+          if (currentPageIndex + 1 < totalPageCount) {
+            table.nextPage();
+            setPage(currentPageIndex + 2);
+          } else {
+            // Optional: Wrap around to the first page
+            table.setPageIndex(0);
+            setPage(1);
+          }
+        }}
+      >
+        Next
+      </PaginationNext>
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+
+
+
       </div>
     </div>
   );

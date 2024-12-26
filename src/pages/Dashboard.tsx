@@ -23,6 +23,7 @@ const Dashboard: React.FC = () => {
   const [articles, setArticles] = useState<Payment[]>([]);
   const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state:any) => state.loginParams);
+  const [pageNum, setPage] = useState<number>(1);
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
     const encodedCredentials = btoa(credentials); // Encode credentials to Base64
@@ -47,8 +48,8 @@ function decodeHtmlEntities(html: string): string {
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
     const params = new URLSearchParams({
-      page: "1",
-      per_page: "30",
+      per_page: "60",
+      page: pageNum.toString(),
       author: userDetails?.id?.toString() || null,
       status: [
         "draft",
@@ -101,6 +102,7 @@ function decodeHtmlEntities(html: string): string {
     return <div>Error: {error}</div>;
   }
 
+
   return (
     <><div className='p-3 bg-purple-100 rounded-b-xl'> 
     <Tabs defaultValue="Create" className="w-full">
@@ -117,7 +119,7 @@ function decodeHtmlEntities(html: string): string {
           <CreateArticle />
         </TabsContent>
         <TabsContent value="Articles">
-      {loading ? ( <div>Loading...</div>):( <DataTable columns={columns} data={articles} />)}   
+      {loading ? ( <div>Loading...</div>):( <DataTable columns={columns} data={articles}  setPage={setPage}  />)}   
         </TabsContent>
       </Tabs></div>
      

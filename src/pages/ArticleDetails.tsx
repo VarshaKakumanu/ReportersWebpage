@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { BASE_URL } from "@/config/app";
 import { useSelector } from "react-redux";
 import React from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Icons } from "@/components/icons";
 
 // Define the data types
 interface Article {
@@ -15,10 +18,15 @@ interface Article {
   content: { rendered: string };
 }
 
-export default function ArticleDetail({ paymentId }: { paymentId: number }) {
+export default function ArticleDetail() {
+  const { paymentId } = useParams();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const activeTab = location.state?.activeTab || "Articles";
   const loginParams = useSelector((state: any) => state.loginParams);
 
   // Create Basic Auth Header
@@ -87,10 +95,20 @@ export default function ArticleDetail({ paymentId }: { paymentId: number }) {
     );
   }
 
+  
+
   return (
     <div className="flex flex-col md:flex-row md:justify-between m-2 p-2">
+       
       {article ? (
        <Card className="m-4 p-4 w-full bg-purple-100 overflow-x-auto">
+          <Badge
+        onClick={() => navigate("/", { state: { activeTab } })}
+       className="gap-1 cursor-pointer"
+      >
+        <Icons.leftArrow />
+        Back to Articles
+      </Badge>
        <div className="flex flex-col items-center justify-between gap-4">
          {/* Decode and display title */}
          <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-[18rem] md:w-[40rem] lg:w-[52rem]">

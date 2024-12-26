@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter, useParams } from "react-router-dom";
 
 import { Applayout } from "./components/layouts/AppLayout";
 
@@ -7,8 +7,11 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import React from "react";
+import ArticleDetail from "./pages/ArticleDetails";
 export const token = localStorage.getItem("access_token");
 const basename = "/";
+
+
 
 export const router = createBrowserRouter([
     {
@@ -20,6 +23,10 @@ export const router = createBrowserRouter([
                 element: <Dashboard />,
 
             },
+            {
+                path:"/article/:paymentId",
+                element:<ArticleDetail />
+            }
               
         ],
     },

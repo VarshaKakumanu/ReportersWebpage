@@ -9,6 +9,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 import ArticleDetail from "../ArticleDetails";
+import { Link, useNavigate } from "react-router-dom";
 
 
 // This type is used to define the shape of our data.
@@ -67,30 +68,25 @@ export const columns: ColumnDef<Payment>[] = [
     id: "actions",
     cell: ({ row }:any) => {
       const payment = row.original;
-     
+     const navigate = useNavigate();
+  const handleViewArticle = (paymentId: number) => {
+    navigate(`/article/${paymentId}`, { state: { activeTab: "Articles" } });
+  };
       return (
 
 
-<Dialog>
-  <DialogTrigger>
-    <Button
-      variant="default"
-      onClick={() => {
-        navigator.clipboard.writeText(payment.id.toString());
-        console.log(payment.id, "Copied to clipboard");
-      }}
-    >
-      View
-    </Button>
-  </DialogTrigger>
-  <DialogContent className="h-full rounded-md m-1 min-w-full overflow-y-scroll flex justify-center items-center">
-    <DialogHeader className="h-[34rem] lg:h-[42rem] 2xl:h-[60rem]">
-      <DialogDescription className="flex justify-center items-center">
-        <ArticleDetail paymentId={payment.id} />
-      </DialogDescription>
-    </DialogHeader>
-  </DialogContent>
-</Dialog>
+        <Link
+        to={`/article/${payment.id}`}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        onClick={() => {
+          navigator.clipboard.writeText(payment.id.toString());
+          console.log(payment.id, "Copied to clipboard");
+          handleViewArticle;
+        }}
+      >
+        View
+      </Link>
+
 
 
       );
