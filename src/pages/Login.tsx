@@ -89,12 +89,13 @@ const navigate = useNavigate();
       password: data?.password,
     });
   
-    axios.post(`${BASE_URL}users/v1/checklogin`, params, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    })
-      .then(response => {
+    axios
+      .post(`${BASE_URL}users/v1/checklogin`, params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+      .then((response) => {
         const result = response?.data?.access_token;
   
         if (result) {
@@ -107,46 +108,49 @@ const navigate = useNavigate();
             },
           });
         } else {
-          return axios.get(`${BASE_URL}wp/v2/users/me?${params}`, {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }).then(() => {
-            throw new Error("Invalid username or password");
-          });
+          return axios
+            .get(`${BASE_URL}wp/v2/users/me?${params}`, {
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            })
+            .then(() => {
+              throw new Error("Invalid username or password");
+            });
         }
       })
-      .then(userResponse => {
+      .then((userResponse: any) => {
         const userResult = userResponse?.data;
   
-        if (userResult?.username && userResponse?.status == 200) {
+        if (userResult?.username && userResponse?.status === 200) {
           const loginParamDispatch = Array.from(params.entries());
           dispatch(loginPram(loginParamDispatch));
           dispatch(updateUserDetails(userResult));
           dispatch(loggedIn(true));
           window.location.href = "/";
         } else {
-          console.log(userResponse,"userResponse")
           throw new Error("Invalid username or password");
-          localStorage.clear();
-          navigate('/')
         }
       })
-      .catch(error => {
-        if(error.status !== 200){
-          localStorage.clear();
-          navigate('/')
-        }else{
+      .catch((error) => {
+        console.error("Login error:", error);
+  
+        // Display error message using toast
         toast("Failed to login", {
-          description: error?.response?.data?.message,
+          description: error.response?.data?.message || error.message || "An error occurred during login.",
         });
+  
+        // Clear local storage, dispatch loggedIn(false), and reset the form
+        localStorage.removeItem("access_token");
         dispatch(loggedIn(false));
-      }
+        form.reset(); // Reset the form fields
       })
       .finally(() => {
         setLoading(false);
       });
   };
+  
+  
   
 
   return (
@@ -243,9 +247,9 @@ const navigate = useNavigate();
                           }}
                         >
                           {!showPassword ? (
-                            <Icons.openEye />
+                           <Icons.closeEye />
                           ) : (
-                            <Icons.closeEye />
+                            <Icons.openEye /> 
                           )}
                         </button>
 
