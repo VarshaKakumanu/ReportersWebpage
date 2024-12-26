@@ -98,13 +98,13 @@ export default function ArticleDetail() {
   
 
   return (
-    <div className="flex flex-col md:flex-row md:justify-between m-2 p-2">
+    <div className="flex flex-col md:flex-row md:justify-between">
        
       {article ? (
-       <Card className="m-4 p-4 w-full bg-purple-100 overflow-x-auto">
+       <div className=" w-full bg-purple-100 overflow-x-auto rounded-b-lg">
           <Badge
         onClick={() => navigate("/", { state: { activeTab } })}
-       className="gap-1 cursor-pointer"
+       className="gap-1 cursor-pointer mt-2 ml-2 shadow-md"
       >
         <Icons.leftArrow />
         Back to Articles
@@ -125,7 +125,7 @@ export default function ArticleDetail() {
            }}
          />
        </div>
-     </Card>
+     </div>
      
       ) : (
         <div>No article found</div>

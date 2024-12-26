@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { debounce } from "lodash";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/components/icons";
+import { useNavigate } from "react-router-dom";
 type FormData = {
   title: string;
   content: string;
@@ -58,7 +59,7 @@ const CreateArticle = () => {
     const encodedCredentials = btoa(credentials);
     return `Basic ${encodedCredentials}`;
   };
-
+const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const makeArticleAPICall = (title: string, content: string) => {
@@ -274,7 +275,7 @@ const CreateArticle = () => {
                         <Button className="hidden" />
                       </DialogTrigger>
                       <DialogContent className=" h-full rounded-md m-1 min-w-full overflow-y-scroll flex  justify-center items-start">
-                        <Badge className="gap-1 "><Icons.leftArrow/>back</Badge>
+                        <Badge  onClick={() => setIsDialogOpen(false)} className="gap-1 cursor-pointer shadow-md"><Icons.leftArrow/>back</Badge>
                         <Test
                           setIsDialogOpen={setIsDialogOpen}
                           onVideoUpload={(videoUrl: string) => {

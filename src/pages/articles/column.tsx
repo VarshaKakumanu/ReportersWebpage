@@ -72,7 +72,7 @@ export const columns: ColumnDef<Payment>[] = [
   const handleViewArticle = (paymentId: number) => {
     navigate(`/article/${paymentId}`, { state: { activeTab: "Articles" } });
   };
-      return (
+        return (
 
 
         <Link
