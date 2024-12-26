@@ -78,6 +78,7 @@ export const columns: ColumnDef<Payment>[] = [
         <Link
         to={`/article/${payment.id}`}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+         target="_blank"
         onClick={() => {
           navigator.clipboard.writeText(payment.id.toString());
           console.log(payment.id, "Copied to clipboard");

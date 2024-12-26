@@ -117,7 +117,7 @@ export default function ArticleDetail() {
      
          {/* Decode and sanitize content */}
          <div
-           className="news-article text-sm md:text-base break-words w-[18rem] md:w-[40rem] lg:w-[52rem]"
+           className="news-article text-sm md:text-base break-words w-[24rem] md:w-[40rem] lg:w-[52rem]"
            dangerouslySetInnerHTML={{
              __html: DOMPurify.sanitize(
                decodeHtmlEntities(article?.content?.rendered || "No content available")
