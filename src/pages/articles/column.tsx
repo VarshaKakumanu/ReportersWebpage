@@ -68,10 +68,7 @@ export const columns: ColumnDef<Payment>[] = [
     id: "actions",
     cell: ({ row }:any) => {
       const payment = row.original;
-     const navigate = useNavigate();
-  const handleViewArticle = (paymentId: number) => {
-    navigate(`/article/${paymentId}`, { state: { activeTab: "Articles" } });
-  };
+
         return (
 
 
@@ -82,7 +79,6 @@ export const columns: ColumnDef<Payment>[] = [
         onClick={() => {
           navigator.clipboard.writeText(payment.id.toString());
           console.log(payment.id, "Copied to clipboard");
-          handleViewArticle;
         }}
       >
         View

@@ -1,16 +1,12 @@
 import DOMPurify from "dompurify";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { BASE_URL } from "@/config/app";
 import { useSelector } from "react-redux";
 import React from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Icons } from "@/components/icons";
-
+import {  useParams } from "react-router-dom";
 // Define the data types
 interface Article {
   id: number;
@@ -23,10 +19,8 @@ export default function ArticleDetail() {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  const activeTab = location.state?.activeTab || "Articles";
+
   const loginParams = useSelector((state: any) => state.loginParams);
 
   // Create Basic Auth Header
@@ -101,14 +95,8 @@ export default function ArticleDetail() {
     <div className="flex flex-col md:flex-row md:justify-between">
        
       {article ? (
-       <div className=" w-full bg-purple-100 overflow-x-auto rounded-b-lg">
-          <Badge
-        onClick={() => navigate("/", { state: { activeTab } })}
-       className="gap-1 cursor-pointer mt-2 ml-2 shadow-md"
-      >
-        <Icons.leftArrow />
-        Back to Articles
-      </Badge>
+       <div className=" w-full bg-purple-100 shadow-lg overflow-x-auto rounded-b-xl">
+         
        <div className="flex flex-col items-center justify-between gap-4">
          {/* Decode and display title */}
          <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-[18rem] md:w-[40rem] lg:w-[52rem]">

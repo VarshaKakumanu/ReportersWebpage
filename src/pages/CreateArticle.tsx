@@ -274,7 +274,7 @@ const navigate = useNavigate();
                       <DialogTrigger>
                         <Button className="hidden" />
                       </DialogTrigger>
-                      <DialogContent className=" h-full rounded-md m-1 min-w-full overflow-y-scroll flex flex-col md:flex-row  justify-center items-start">
+                      <DialogContent className=" h-full rounded-md  min-w-full overflow-y-scroll flex flex-col md:flex-row  justify-center items-start">
                         <Badge  onClick={() => setIsDialogOpen(false)} className="gap-1 cursor-pointer shadow-md"><Icons.leftArrow/>Back</Badge>
                         <Test
                           setIsDialogOpen={setIsDialogOpen}

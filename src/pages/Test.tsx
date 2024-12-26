@@ -102,21 +102,29 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
     
   
     // Configure Tus Plugin
+    
     uppyInstance.use(Tus, {
       endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
       retryDelays: [0, 1000, 3000, 5000, 10000],
-      chunkSize: calculateChunkSize(fileSize), // Set chunk size to 10MB
+      chunkSize: undefined, // Set chunk size to 10MB
     });
 
         // Adjust chunk size dynamically on file addition
-        uppyInstance.on("file-added", (file:any) => {
-          const dynamicChunkSize = calculateChunkSize(file.size); // Calculate chunk size dynamically
-          uppyInstance.getPlugin("Tus")?.setOptions({ chunkSize: dynamicChunkSize });
+        uppyInstance.on("file-added", (file: any) => {
+          const dynamicChunkSize = calculateChunkSize(file.size);
           console.log(
-            `Chunk size set to: ${dynamicChunkSize / (1024 * 1024)} MB for file: ${file.name}`
+            `File: ${file.name}, Size: ${file.size / (1024 * 1024)} MB, Chunk Size: ${
+              dynamicChunkSize / (1024 * 1024)
+            } MB`
           );
+          uppyInstance.getPlugin("Tus")?.setOptions({ chunkSize: dynamicChunkSize });
         });
 
+        uppyInstance.on("upload-progress", (file: any, progress: any) => {
+          console.log(
+            `Progress for ${file.name}: Uploaded ${progress.bytesUploaded} of ${file.size}`
+          );
+        });
      // Retry Upload Logic
      const retryUpload = (fileId: string) => {
       const file = uppyInstance.getFile(fileId);

@@ -181,13 +181,15 @@ export function DataTable<TData, TValue>({
       <PaginationPrevious
         onClick={() => {
           const currentPageIndex = table.getState().pagination.pageIndex;
+          const totalPageCount = table.getPageCount();
+
           if (currentPageIndex > 0) {
             table.previousPage();
             setPage(currentPageIndex);
           } else {
-            // Optional: Wrap around to the last page
-            table.setPageIndex(table.getPageCount() - 1);
-            setPage(table.getPageCount());
+            // Wrap back to the last page
+            table.setPageIndex(totalPageCount - 1);
+            setPage(totalPageCount);
           }
         }}
       >
@@ -195,31 +197,48 @@ export function DataTable<TData, TValue>({
       </PaginationPrevious>
     </PaginationItem>
 
-    {/* Page Numbers */}
-    {Array.from({ length: table.getPageCount() }, (_, index) => (
-      <PaginationItem key={index}>
-        <PaginationLink
-          href="#"
-          onClick={() => {
-            table.setPageIndex(index); // Update table state
-            setPage(index + 1);       // Update parent state
-          }}
-          isActive={table.getState().pagination.pageIndex === index}
-          aria-current={
-            table.getState().pagination.pageIndex === index ? "page" : undefined
-          }
-        >
-          {index + 1}
-        </PaginationLink>
-      </PaginationItem>
-    ))}
+    {/* Visible Pages: Show 2 Pages + Ellipsis */}
+    {Array.from({ length: table.getPageCount() }, (_, index) => {
+      const totalPageCount = table.getPageCount();
+      const currentPage = table.getState().pagination.pageIndex;
 
-    {/* Optional Ellipsis (for large page counts) */}
-    {/* {table.getPageCount() > 5 && (
-      <PaginationItem>
-        <PaginationEllipsis />
-      </PaginationItem>
-    )} */}
+      // Show only two pages + ellipsis
+      const showPage =
+        index === currentPage || // Current page
+        index === (currentPage + 1) % totalPageCount || // Next page
+        index === totalPageCount - 1; // Last page when cycling back
+
+      const isEllipsis =
+        index === currentPage + 2 && currentPage + 2 < totalPageCount; // Add ellipsis after 2 pages
+
+      if (showPage) {
+        return (
+          <PaginationItem key={index}>
+            <PaginationLink
+              href="#"
+              onClick={() => {
+                table.setPageIndex(index); // Update table state
+                setPage(index + 1); // Update current page
+              }}
+              isActive={table.getState().pagination.pageIndex === index}
+              aria-current={
+                table.getState().pagination.pageIndex === index ? "page" : undefined
+              }
+            >
+              {index + 1}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      } else if (isEllipsis) {
+        return (
+          <PaginationItem key={`ellipsis-${index}`}>
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
+      return null; // Hide pages outside the sliding range
+    })}
 
     {/* Next Button */}
     <PaginationItem>
@@ -227,11 +246,12 @@ export function DataTable<TData, TValue>({
         onClick={() => {
           const currentPageIndex = table.getState().pagination.pageIndex;
           const totalPageCount = table.getPageCount();
+
           if (currentPageIndex + 1 < totalPageCount) {
             table.nextPage();
             setPage(currentPageIndex + 2);
           } else {
-            // Optional: Wrap around to the first page
+            // Wrap back to the first page
             table.setPageIndex(0);
             setPage(1);
           }
@@ -242,6 +262,8 @@ export function DataTable<TData, TValue>({
     </PaginationItem>
   </PaginationContent>
 </Pagination>
+
+
 
 
 
