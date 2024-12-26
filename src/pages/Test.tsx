@@ -22,6 +22,12 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
   const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state: any) => state.loginParams);
 
+  document.addEventListener("DOMContentLoaded", () => {
+    const addMoreButton:any = document.querySelector(".uppy-DashboardContent-addMore");
+    if (addMoreButton) {
+      addMoreButton.style.display = "none";
+    }
+  });
 
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
@@ -107,6 +113,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
       endpoint: `http://test.kb.etvbharat.com/wp-tus?curtime=${curtime}`,
       retryDelays: [0, 1000, 3000, 5000, 10000],
       chunkSize: undefined, // Set chunk size to 10MB
+      
     });
 
         // Adjust chunk size dynamically on file addition
@@ -118,6 +125,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
             } MB`
           );
           uppyInstance.getPlugin("Tus")?.setOptions({ chunkSize: dynamicChunkSize });
+          
         });
 
         uppyInstance.on("upload-progress", (file: any, progress: any) => {

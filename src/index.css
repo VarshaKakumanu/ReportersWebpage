@@ -205,3 +205,6 @@
 .news-article a:hover {
   text-decoration: underline;
 }
+.uppy-DashboardContent-addMore {
+  display: none !important;
+}
