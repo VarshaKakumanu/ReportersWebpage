@@ -6,10 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { ArrowUpDown} from "lucide-react";
 import React from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
-import ArticleDetail from "../ArticleDetails";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 // This type is used to define the shape of our data.

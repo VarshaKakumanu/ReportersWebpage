@@ -27,7 +27,6 @@ import { BASE_URL } from "@/config/app";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import React from "react";
 import { Icons } from "@/components/icons";
-import { ModeToggle } from "@/components/mode-toggle";
 
 // Define the schema for form validation
 const formSchema = z.object({

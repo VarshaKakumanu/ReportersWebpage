@@ -93,7 +93,7 @@ const Dashboard: React.FC = () => {
 
     const fetchArticles = () => {
       const params = new URLSearchParams({
-        per_page: "100",
+        per_page: "100"|| pageCount,
         page: pageNum.toString(),
         author: userDetails?.id?.toString() || null,
         status: [
@@ -149,7 +149,7 @@ const Dashboard: React.FC = () => {
 
     fetchArticles();
     fetchCount();
-  }, [ArticlesFlag, pageNum, activeTab]); // Add activeTab as dependency
+  }, [ArticlesFlag, pageNum, activeTab,pageCount]); // Add activeTab as dependency
 
   if (error) {
     return <div>Error: {error}</div>;
