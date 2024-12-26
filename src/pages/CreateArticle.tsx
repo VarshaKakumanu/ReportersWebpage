@@ -21,6 +21,8 @@ import { Editor } from "@tinymce/tinymce-react";
 import Test from "./Test";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { debounce } from "lodash";
+import { Badge } from "@/components/ui/badge";
+import { Icons } from "@/components/icons";
 type FormData = {
   title: string;
   content: string;
@@ -271,7 +273,8 @@ const CreateArticle = () => {
                       <DialogTrigger>
                         <Button className="hidden" />
                       </DialogTrigger>
-                      <DialogContent className=" h-auto rounded-md m-1 min-w-auto overflow-y-scroll flex justify-center items-center">
+                      <DialogContent className=" h-full rounded-md m-1 min-w-full overflow-y-scroll flex  justify-center items-start">
+                        <Badge className="gap-1 "><Icons.leftArrow/>back</Badge>
                         <Test
                           setIsDialogOpen={setIsDialogOpen}
                           onVideoUpload={(videoUrl: string) => {
