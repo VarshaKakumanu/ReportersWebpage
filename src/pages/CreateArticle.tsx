@@ -309,7 +309,7 @@ const CreateArticle = () => {
                               uploadType = "video"; // Set upload type
                               setIsDialogOpen(false);
                               showUploadToast();
-                            }, 1000); // Simulate processing delay
+                            }, 500); // Simulate processing delay
                           }}
                           
                           onImageUpload={(imageUrl: string) => {
