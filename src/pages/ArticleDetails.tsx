@@ -33,14 +33,17 @@ export default function ArticleDetail() {
   // Decode HTML Entities
   function decodeHtmlEntities(html: string): string {
     return html
-      .replace(/&amp;/g, "&")         // Decode '&'
-      .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
-      .replace(/&#8216;/g, "‘")       // Decode left single quote
-      .replace(/&#8217;/g, "’")       // Decode right single quote
-      .replace(/&#8220;/g, "“")       // Decode left double quote
-      .replace(/&#8221;/g, "”")       // Decode right double quote
-      .replace(/&#39;/g, "'")         // Decode straight single quote
-      .replace(/&quot;/g, '"');       // Decode straight double quote
+    .replace(/&amp;/g, "&")         // Decode '&'
+    .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
+    .replace(/&#8216;/g, "‘")       // Decode left single quote
+    .replace(/&#8217;/g, "’")       // Decode right single quote
+    .replace(/&#8220;/g, "“")       // Decode left double quote
+    .replace(/&#8221;/g, "”")       // Decode right double quote
+    .replace(/&#39;/g, "'")         // Decode straight single quote
+    .replace(/&quot;/g, '"')        // Decode straight double quote
+    .replace(/&lt;/g, "<")          // Decode '<'
+    .replace(/&gt;/g, ">");         // Decode '>'
+    
   }
 
   useEffect(() => {

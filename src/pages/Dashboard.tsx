@@ -36,14 +36,17 @@ const Dashboard: React.FC = () => {
 
   function decodeHtmlEntities(html: string): string {
     return html
-      .replace(/&amp;/g, "&")
-      .replace(/&#8211;/g, "–")
-      .replace(/&#8216;/g, "‘")
-      .replace(/&#8217;/g, "’")
-      .replace(/&#8220;/g, "“")
-      .replace(/&#8221;/g, "”")
-      .replace(/&#39;/g, "'")
-      .replace(/&quot;/g, '"');
+    .replace(/&amp;/g, "&")         // Decode '&'
+    .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
+    .replace(/&#8216;/g, "‘")       // Decode left single quote
+    .replace(/&#8217;/g, "’")       // Decode right single quote
+    .replace(/&#8220;/g, "“")       // Decode left double quote
+    .replace(/&#8221;/g, "”")       // Decode right double quote
+    .replace(/&#39;/g, "'")         // Decode straight single quote
+    .replace(/&quot;/g, '"')        // Decode straight double quote
+    .replace(/&lt;/g, "<")          // Decode '<'
+    .replace(/&gt;/g, ">");         // Decode '>'
+    
   }
 
   useEffect(() => {

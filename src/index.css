@@ -95,21 +95,11 @@
   background: #959595; 
 }
 
-.video-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%; /* Maintain 16:9 aspect ratio */
-  height: 0; /* Height is determined by padding-bottom */
-  overflow: hidden; /* Ensure no overflow */
+img{
+  align-items: center;
 }
-
-.video-container video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Ensures the video fully covers the container */
+video{
+  align-items: center;
 }
 
 .news-article {

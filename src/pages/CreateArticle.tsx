@@ -23,7 +23,6 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { debounce } from "lodash";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/components/icons";
-import { useNavigate } from "react-router-dom";
 type FormData = {
   title: string;
   content: string;
@@ -59,7 +58,7 @@ const CreateArticle = () => {
     const encodedCredentials = btoa(credentials);
     return `Basic ${encodedCredentials}`;
   };
-const navigate = useNavigate();
+
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const makeArticleAPICall = (title: string, content: string) => {
@@ -282,12 +281,28 @@ const navigate = useNavigate();
                             setTimeout(() => {
                               const currentContent = getValues("content");
                               const videoTemplate = `
-                            <video loading="lazy" class="video-container" id="uploaded-video-${Date.now()}" controls preload="auto" width="600">
-                              <source src="${videoUrl}" type="video/mp4" />
-                              Your browser does not support the video tag.
-                            </video>
-                          `;
-
+                                <video
+                                  loading="lazy"
+                                  id="uploaded-video-${Date.now()}"
+                                  controls
+                                  preload="auto"
+                                  style="
+                                    display: block;
+                                    width:80%;
+                                    max-width: 800px; /* Adjust to your desired max width */
+                                    height: auto; /* Maintain aspect ratio */
+                                    object-fit: cover; /* Ensure the video covers the container */
+                                    border-radius: 8px; /* Optional: Rounded corners for a polished look */
+                                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Subtle shadow for depth */
+                                    margin: 0 auto; /* Center the video within its container */
+                                    background-color: black; /* Optional: Background for better contrast */
+                                  "
+                                >
+                                  <source src="${videoUrl}" type="video/mp4" />
+                                  Your browser does not support the video tag.
+                                </video>
+                              `;
+                          
                               const updatedContent = `${currentContent}\n${videoTemplate}`;
                               setValue("content", updatedContent);
                               uploadCount += 1; // Increment upload counter
@@ -296,18 +311,35 @@ const navigate = useNavigate();
                               showUploadToast();
                             }, 1000); // Simulate processing delay
                           }}
+                          
                           onImageUpload={(imageUrl: string) => {
                             const currentContent = getValues("content");
-                            const updatedContent = `${currentContent}
-      <div class="image-container">
-        <img loading="lazy" src="${imageUrl}" alt="Uploaded image" width="600" />
-      </div>`;
+                            const imageTemplate = `
+                              <img
+                                loading="lazy"
+                                src="${imageUrl}"
+                                alt="Uploaded image"
+                                style="
+                                  display: block;
+                                    width:80%;
+                                    max-width: 800px; /* Adjust to your desired max width */
+                                    height: auto; /* Maintain aspect ratio */
+                                    object-fit: cover; /* Ensure the video covers the container */
+                                    border-radius: 8px; /* Optional: Rounded corners for a polished look */
+                                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Subtle shadow for depth */
+                                    margin: 0 auto; /* Center the video within its container */
+                                    background-color: black; /* Optional: Background for better contrast */
+                                "
+                              />
+                            `;
+                            const updatedContent = `${currentContent}\n${imageTemplate}`;
                             setValue("content", updatedContent);
                             uploadCount += 1; // Increment upload counter
                             uploadType = "image"; // Set upload type
                             setIsDialogOpen(false);
                             showUploadToast();
                           }}
+                          
                         />
                       </DialogContent>
                     </Dialog>
