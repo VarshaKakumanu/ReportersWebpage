@@ -123,14 +123,21 @@ const Dashboard: React.FC = () => {
           },
         })
         .then((response: any) => {
+          const formatTitle = (title: string): string => {
+            const words = title.split(" "); // Split the title into an array of words
+            if (words.length > 4) {
+              return words.slice(0, 4).join(" ") + " ..."; // Take the first 4 words and append "..."
+            }
+            return title; // If 4 words or fewer, return the original title
+          };
           const formattedData = response?.data?.map((item: any) => ({
             id: item?.id,
-            title: decodeHtmlEntities(item?.title?.rendered),
+            title: formatTitle(decodeHtmlEntities(item?.title?.rendered)),
             status: item?.status,
             email: item?.author_email || userDetails?.email,
             content: decodeHtmlEntities(item?.content?.rendered),
           }));
-
+         
           setArticles(formattedData);
           setLoading(false);
         })
