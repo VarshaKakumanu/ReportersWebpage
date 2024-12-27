@@ -152,7 +152,7 @@ const Dashboard: React.FC = () => {
 
     fetchArticles();
     fetchCount();
-  }, [ArticlesFlag, pageNum, activeTab,pageCount]); // Add activeTab as dependency
+  }, [ArticlesFlag, setPage, activeTab,pageCount]); // Add activeTab as dependency
 
   if (error) {
     return <div>Error: {error}</div>;
