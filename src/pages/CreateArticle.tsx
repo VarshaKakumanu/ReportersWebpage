@@ -209,6 +209,7 @@ const CreateArticle = () => {
                           field.onChange(content);
                         }}
                         init={{
+                          
                           plugins: [
                             "anchor",
                             "autolink",
@@ -223,6 +224,24 @@ const CreateArticle = () => {
                             "visualblocks",
                             "wordcount",
                           ],
+                          content_style: `
+                          div { margin: 10px; padding: 3px; }
+                          img, video {
+                            display: block;
+                            width: 100%;
+                            max-width: 800px;
+                            margin: 10px 0;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                            object-fit: contain;
+                          }
+                          @media (max-width: 768px) {
+                            img, video {
+                              width: 90%;
+                              margin: 10px auto;
+                            }
+                          }
+                        `,
                           resize: true,
                           placeholder: "Write Your Article Here..",
                           height: 220,

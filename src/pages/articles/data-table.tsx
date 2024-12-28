@@ -71,11 +71,7 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  function decodeHtmlEntities(str: string): string {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = str;
-    return txt.value;
-  }
+
 
   useEffect(() => {
     setPage(table.getState().pagination.pageIndex + 1);
@@ -153,12 +149,9 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                   <TableCell key={cell.id}>
-                   {(() => {
-                     const content = flexRender(cell.column.columnDef.cell, cell.getContext());
-                     return typeof content === "string" ? decodeHtmlEntities(content) : content;
-                   })()}
-                 </TableCell>
+                     <TableCell key={cell.id}>
+                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                   </TableCell>
                   ))}
                 </TableRow>
               ))

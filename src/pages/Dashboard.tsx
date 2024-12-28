@@ -35,19 +35,22 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   function decodeHtmlEntities(html: string): string {
-    return html
-    .replace(/&amp;/g, "&")         // Decode '&'
-    .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
-    .replace(/&#8216;/g, "‘")       // Decode left single quote
-    .replace(/&#8217;/g, "’")       // Decode right single quote
-    .replace(/&#8220;/g, "“")       // Decode left double quote
-    .replace(/&#8221;/g, "”")       // Decode right double quote
-    .replace(/&#39;/g, "'")         // Decode straight single quote
-    .replace(/&quot;/g, '"')        // Decode straight double quote
-    .replace(/&lt;/g, "<")          // Decode '<'
-    .replace(/&gt;/g, ">");         // Decode '>'
-    
+    const entities: { [key: string]: string } = {
+      "&amp;": "&",
+      "&#8211;": "–",
+      "&#8216;": "‘",
+      "&#8217;": "’",
+      "&#8220;": "“",
+      "&#8221;": "”",
+      "&#39;": "'",
+      "&quot;": '"',
+      "&lt;": "<",
+      "&gt;": ">",
+    };
+  
+    return html.replace(/&[a-z#0-9]+;/g, (entity) => entities[entity] || entity);
   }
+  
 
   useEffect(() => {
     if (activeTab !== "Articles") return;
@@ -132,7 +135,7 @@ const Dashboard: React.FC = () => {
           };
           const formattedData = response?.data?.map((item: any) => ({
             id: item?.id,
-            title: formatTitle(decodeHtmlEntities(item?.title?.rendered)),
+            title: formatTitle(decodeHtmlEntities(item?.title?.rendered)).toString(),
             status: item?.status,
             email: item?.author_email || userDetails?.email,
             content: decodeHtmlEntities(item?.content?.rendered),

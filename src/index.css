@@ -198,3 +198,44 @@ video{
 .uppy-DashboardContent-addMore {
   display: none !important;
 }
+
+/* General editor container styling */
+.tox {
+  max-width: 100%;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Content inside the editor */
+.tox-editor-container {
+  padding: 10px;
+  background: #fff;
+}
+
+/* Media Styling */
+.tox-editor-container img,
+.tox-editor-container video {
+  display: block;
+  width: 100%; /* Adjust to 100% for responsiveness */
+  max-width: 800px; /* Limit the maximum width */
+  margin: 10px 0; /* Add spacing */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  object-fit: contain; /* Ensure proper scaling */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .tox {
+    width: 100%;
+    padding: 5px;
+  }
+
+  .tox-editor-container img,
+  .tox-editor-container video {
+    width: 90%; /* Adjust width for smaller screens */
+    margin: 10px auto; /* Center media */
+  }
+}
