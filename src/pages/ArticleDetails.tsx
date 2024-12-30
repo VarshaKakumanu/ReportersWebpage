@@ -95,32 +95,30 @@ export default function ArticleDetail() {
   
 
   return (
-    <div className="flex flex-col md:flex-row md:justify-between">
-       
-      {article ? (
-       <div className=" w-full bg-purple-100 shadow-lg overflow-x-auto rounded-b-xl">
-         
-       <div className="flex flex-col items-center justify-between gap-4">
-         {/* Decode and display title */}
-         <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-[18rem] md:w-[40rem] lg:w-[52rem]">
-           {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
-         </h1>
-     
-         {/* Decode and sanitize content */}
-         <div
-           className="news-article text-sm md:text-base break-words w-[24rem] md:w-[40rem] lg:w-[52rem]"
-           dangerouslySetInnerHTML={{
-             __html: DOMPurify.sanitize(
-               decodeHtmlEntities(article?.content?.rendered || "No content available")
-             ),
-           }}
-         />
-       </div>
-     </div>
-     
-      ) : (
-        <div>No article found</div>
-      )}
-    </div>
+    <div className="flex flex-col md:flex-row md:justify-between w-full">
+    {article ? (
+      <div className="w-full bg-purple-100 shadow-lg rounded-b-xl">
+        <div className="flex flex-col items-center justify-center gap-4 w-full max-w-screen-lg mx-auto px-4 py-6">
+          {/* Title Section */}
+          <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-full">
+            {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
+          </h1>
+  
+          {/* Content Section */}
+          <div
+            className="news-article text-sm md:text-base break-words w-full"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                decodeHtmlEntities(article?.content?.rendered || "No content available")
+              ),
+            }}
+          />
+        </div>
+      </div>
+    ) : (
+      <div className="text-center w-full">No article found</div>
+    )}
+  </div>
+  
   );
 }

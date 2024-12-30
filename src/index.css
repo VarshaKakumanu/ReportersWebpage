@@ -140,7 +140,7 @@ video{
 .news-article video {
   width: 100%; /* Ensures the video fills the width of the container */
   height: auto; /* Maintains aspect ratio */
-  margin: 1rem 0; /* Center the video and add margin */
+  margin: auto; /* Center the video and add margin */
   display: block;
   border-radius: 10px; /* Rounded corners */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
@@ -154,7 +154,7 @@ video{
   .news-article video {
     border-radius: 8px; /* Slightly smaller border radius */
     margin: 0.5rem 0; /* Reduce margins for smaller screens */
-    width: 45%;
+    width: 100%;
   }
 
   .news-article p {
@@ -166,8 +166,8 @@ video{
 @media (min-width: 576px) and (max-width: 992px) {
   .news-article img,
   .news-article video {
-    max-width: 90%; /* Add some padding space on tablets */
-    margin: 1rem auto;
+    max-width: 100%; /* Add some padding space on tablets */
+
   }
 }
 
@@ -176,7 +176,7 @@ video{
   .news-article img,
   .news-article video {
     max-width: 100%; /* Limit width for larger screens */
-    margin: 2rem auto;
+
     border-radius: 15px; /* More prominent rounded corners */
   }
 }
@@ -236,6 +236,10 @@ video{
   .tox-editor-container img,
   .tox-editor-container video {
     width: 90%; /* Adjust width for smaller screens */
-    margin: 10px auto; /* Center media */
   }
+}
+
+.wp-video {
+width: 100% !important;
+margin: 2px;
 }

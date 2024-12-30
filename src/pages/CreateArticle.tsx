@@ -225,23 +225,29 @@ const CreateArticle = () => {
                             "wordcount",
                           ],
                           content_style: `
-                          div { margin: 10px; padding: 3px; }
-                          img, video {
-                            display: block;
-                            width: 100%;
-                            max-width: 800px;
-                            margin: 10px 0;
-                            border-radius: 8px;
-                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                            object-fit: contain;
-                          }
-                          @media (max-width: 768px) {
-                            img, video {
-                              width: 90%;
-                              margin: 10px auto;
-                            }
-                          }
-                        `,
+  div { margin: 10px; padding: 3px; }
+  img, video {
+    display: block;
+    width: 100%;
+    max-width: 800px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    object-fit: contain;
+  }
+  span.mce-preview-object.mce-object-video {
+    background-color: transparent !important; /* Remove black background */
+    box-shadow: none !important; /* Remove any shadows */
+    border: none !important; /* Remove borders */
+  }
+  @media (max-width: 768px) {
+    img, video {
+      width: 90%;
+     
+    }
+  }
+`,
+
                           resize: true,
                           placeholder: "Write Your Article Here..",
                           height: 220,
@@ -308,13 +314,13 @@ const CreateArticle = () => {
                                   controls
                                   style="
                                     display: block;
-                                    width:80%;
+                                    width:100%;
                                     max-width: 800px; /* Adjust to your desired max width */
                                     height: auto; /* Maintain aspect ratio */
                                     object-fit: cover; /* Ensure the video covers the container */
                                     border-radius: 8px; /* Optional: Rounded corners for a polished look */
                                     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Subtle shadow for depth */
-                                    margin: 0 auto; /* Center the video within its container */
+                                    
                                     background-color: black; /* Optional: Background for better contrast */
                                   "
                                 >
@@ -341,13 +347,13 @@ const CreateArticle = () => {
                                 alt="Uploaded image"
                                 style="
                                   display: block;
-                                    width:80%;
+                                    width:100%;
                                     max-width: 800px; /* Adjust to your desired max width */
                                     height: auto; /* Maintain aspect ratio */
                                     object-fit: cover; /* Ensure the video covers the container */
                                     border-radius: 8px; /* Optional: Rounded corners for a polished look */
                                     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Subtle shadow for depth */
-                                    margin: 0 auto; /* Center the video within its container */
+                                   
                                     background-color: black; /* Optional: Background for better contrast */
                                 "
                               />
