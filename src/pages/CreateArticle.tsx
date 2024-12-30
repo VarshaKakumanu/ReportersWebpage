@@ -301,10 +301,11 @@ const CreateArticle = () => {
                               const currentContent = getValues("content");
                               const videoTemplate = `
                                 <video
+                                 playsinline
+                                 preload="metadata"
                                   loading="lazy"
                                   id="uploaded-video-${Date.now()}"
                                   controls
-                                  preload="auto"
                                   style="
                                     display: block;
                                     width:80%;
@@ -328,7 +329,7 @@ const CreateArticle = () => {
                               uploadType = "video"; // Set upload type
                               setIsDialogOpen(false);
                               showUploadToast();
-                            }, 500); // Simulate processing delay
+                            }, 100); // Simulate processing delay
                           }}
                           
                           onImageUpload={(imageUrl: string) => {
