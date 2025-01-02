@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import React from "react";
 import ArticleDetail from "./pages/ArticleDetails";
+import EditArticle from "./pages/Edit";
 export const token = localStorage.getItem("access_token");
 const basename = "/";
 
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
             {
                 path:"/article/:paymentId",
                 element:<ArticleDetail />
+            },
+            {
+                path:"/edit/:paymentId",
+                element:<EditArticle />
             }
               
         ],

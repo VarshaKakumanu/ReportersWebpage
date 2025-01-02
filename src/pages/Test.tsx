@@ -60,7 +60,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
   const makeMediaAPICall = (url: string) => {
     axios
       .get(
-        `${BASE_URL}media/v1/path?file_url=${url}&user_id=${userDetails?.id}`
+        `${BASE_URL}media/v1/path?user_id=${userDetails?.id}&file_url=${url}`
       )
       .catch((error) => {
         toast.error("Error fetching media details:", {
@@ -149,7 +149,7 @@ const Test: React.FC<TestProps> = ({ onVideoUpload, onImageUpload,setIsDialogOpe
         if (file.type.startsWith("image/")) {
           uploadImageToWP(file.data);
         } else if (file.type.startsWith("video/")) {
-          const finalUploadedUrl = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2024/12/${curtime}/${file.name}`;
+          const finalUploadedUrl = `http://chartbeat-datastream-storage.s3.ap-south-1.amazonaws.com/wp-content/uploads/2025/01/${curtime}/${file.name}`;
           onVideoUpload(finalUploadedUrl);
           makeMediaAPICall(finalUploadedUrl);
        
