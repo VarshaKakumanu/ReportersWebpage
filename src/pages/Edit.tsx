@@ -23,7 +23,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { debounce } from "lodash";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/components/icons";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/page-header";
 type FormData = {
   title: string;
@@ -50,8 +50,9 @@ const EditArticle = () => {
   const [s3_base_url, setS3_base_url] = useState("");
   const loginParams = useSelector((state: any) => state.loginParams);
   const dispatch = useDispatch();
-  const [article, setArticle] = useState<Article | null>(null);
-
+  const naviagte = useNavigate();
+  const [article, setArticle]:any = useState<Article | null>(null);
+console.log(article?.title?.rendered,"hereeeeeeeeeeee")
   // Create Basic Auth Header
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
@@ -59,21 +60,7 @@ const EditArticle = () => {
     return `Basic ${encodedCredentials}`;
   };
 
-  // Decode HTML Entities
-  function decodeHtmlEntities(html: string): string {
-    return html
-    .replace(/&amp;/g, "&")         // Decode '&'
-    .replace(/&#8211;/g, "–")       // Decode '–' (en dash)
-    .replace(/&#8216;/g, "‘")       // Decode left single quote
-    .replace(/&#8217;/g, "’")       // Decode right single quote
-    .replace(/&#8220;/g, "“")       // Decode left double quote
-    .replace(/&#8221;/g, "”")       // Decode right double quote
-    .replace(/&#39;/g, "'")         // Decode straight single quote
-    .replace(/&quot;/g, '"')        // Decode straight double quote
-    .replace(/&lt;/g, "<")          // Decode '<'
-    .replace(/&gt;/g, ">");         // Decode '>'
-    
-  }
+
 
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
@@ -104,6 +91,8 @@ const EditArticle = () => {
 
     fetchArticle();
   }, [paymentId]);
+
+  
 
   const {
     setValue,
@@ -175,10 +164,12 @@ const EditArticle = () => {
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       form.reset();
       toast.success("Article posted successfully!");
+      naviagte(`/article/${paymentId}`)
     } else {
       // If no video tag is present, submit content as is
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       toast.success("Article posted successfully!");
+      naviagte(`/article/${paymentId}`)
     }
     form.reset();
   };
@@ -215,6 +206,15 @@ const EditArticle = () => {
     uploadType = ""; // Reset upload type
   }, 1000);
 
+  // Set form default values when article is fetched
+useEffect(() => {
+  if (article) {
+    // Set default values for title and content fields
+    setValue("title", article?.title?.rendered || "");
+    setValue("content", article?.content?.rendered || "");
+  }
+}, [article, setValue]);
+
   return (
     <div className="bg-purple-100 text-foreground flex items-center justify-evenly max-h-full px-4">
         
@@ -229,6 +229,7 @@ const EditArticle = () => {
               <FormField
                 control={form.control}
                 name="title"
+                defaultValue={article?.title?.rendered}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
@@ -257,6 +258,7 @@ const EditArticle = () => {
                       <Editor
                         apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
                         value={field.value}
+                        initialValue={article?.content?.rendered}
                         onEditorChange={(content: string) => {
                           field.onChange(content);
                         }}

@@ -100,7 +100,7 @@ export const columns: ColumnDef<Payment>[] = [
             },
           })
           .then((response) => {
-            // dispatch(ArticleFlag(true));
+            dispatch(ArticleFlag(true));
             console.log(response.data, "Server Response");
             toast.success("Post deleted successfully!");
           })
@@ -123,20 +123,16 @@ export const columns: ColumnDef<Payment>[] = [
           >
             View
           </Link>
-          {/* <Link
+          <Link
             to={`edit/${payment.id}`}
             className="bg-yellow-500 text-white px-4 py-2 rounded shadow-lg hover:-translate-y-0.5 hover:bg-yellow-600"
             target="_blank"
-            // onClick={() => {
-            //   navigator.clipboard.writeText(payment.id.toString());
-            //   console.log(payment.id, "Copied to clipboard");
-            // }}
           >
             Edit
           </Link>
           <AlertDialog>
             <AlertDialogTrigger>
-              <Button className="bg-red-500 text-white px-4 py-2 rounded shadow-lg hover:-translate-y-0.5 hover:bg-red-600">
+              <Button className="bg-red-500 hidden text-white px-4 py-2 rounded shadow-lg hover:-translate-y-0.5 hover:bg-red-600">
                 Delete
               </Button>
             </AlertDialogTrigger>
@@ -159,7 +155,7 @@ export const columns: ColumnDef<Payment>[] = [
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog> */}
+          </AlertDialog> 
         </div>
       );
     },
