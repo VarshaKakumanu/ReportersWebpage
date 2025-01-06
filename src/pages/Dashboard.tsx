@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
   const userDetails = useSelector((state: any) => state?.userDetails);
   const loginParams = useSelector((state: any) => state.loginParams);
   const [pageNum, setPage] = useState<number>(1);
-  const [pageCount, setPageCount] = useState(10);
+  const [pageCount, setPageCount] = useState();
   const [activeTab, setActiveTab] = useState<string>("Create"); // Track active tab
   const createBasicAuthHeader = () => {
     const credentials = `${loginParams?.email}:${loginParams?.password}`;
@@ -80,7 +80,8 @@ const Dashboard: React.FC = () => {
         .get(`${BASE_URL}post/v1/count?${paramsCount}`)
         .then((response: any) => {
           console.log("Count response:", response?.data);
-          setPageCount(response?.data?.count);
+          const total:any = Math.ceil(response?.data?.count / 10)
+          setPageCount(total);
         })
         .catch((error) => {
           console.error("Error fetching count:", error);
@@ -99,7 +100,7 @@ const Dashboard: React.FC = () => {
 
     const fetchArticles = () => {
       const params = new URLSearchParams({
-        per_page: "100"|| pageCount,
+        per_page: "100",
         page: pageNum.toString(),
         author: userDetails?.id?.toString() || null,
         status: [

@@ -100,7 +100,7 @@ export default function ArticleDetail() {
       <div className="w-full bg-purple-100 shadow-lg rounded-b-xl">
         <div className="flex flex-col items-center justify-center gap-4 w-full max-w-screen-lg mx-auto px-4 py-6">
           {/* Title Section */}
-          <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words text-center w-full">
+          <h1 className="font-sans text-xl md:text-4xl lg:text-6xl break-words pt-1 text-center w-full">
             {decodeHtmlEntities(article?.title?.rendered || "Untitled Article")}
           </h1>
   

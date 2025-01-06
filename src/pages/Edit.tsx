@@ -60,7 +60,22 @@ console.log(article?.title?.rendered,"hereeeeeeeeeeee")
     return `Basic ${encodedCredentials}`;
   };
 
-
+  function decodeHtmlEntities(html: string): string {
+    const entities: { [key: string]: string } = {
+      "&amp;": "&",
+      "&#8211;": "–",
+      "&#8216;": "‘",
+      "&#8217;": "’",
+      "&#8220;": "“",
+      "&#8221;": "”",
+      "&#39;": "'",
+      "&quot;": '"',
+      "&lt;": "<",
+      "&gt;": ">",
+    };
+  
+    return html.replace(/&[a-z#0-9]+;/g, (entity) => entities[entity] || entity);
+  }
 
   useEffect(() => {
     const authHeader = createBasicAuthHeader();
@@ -139,7 +154,6 @@ console.log(article?.title?.rendered,"hereeeeeeeeeeee")
   };
 
   const onSubmit = (data: FormData) => {
-    console.log(data, "dataaaaa");
     let contentWithVideo = data.content;
 
     if (!contentWithVideo) {
@@ -210,7 +224,7 @@ console.log(article?.title?.rendered,"hereeeeeeeeeeee")
 useEffect(() => {
   if (article) {
     // Set default values for title and content fields
-    setValue("title", article?.title?.rendered || "");
+    setValue("title", decodeHtmlEntities(article?.title?.rendered || ""));
     setValue("content", article?.content?.rendered || "");
   }
 }, [article, setValue]);
@@ -454,7 +468,7 @@ useEffect(() => {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">Update</Button>
                   </div>
                 </div>
               )}
