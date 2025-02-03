@@ -8,7 +8,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ["prop-types"], // Ensure prop-types is pre-bundled
   },
-  plugins: [react()],
+  plugins: [react()], 
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
