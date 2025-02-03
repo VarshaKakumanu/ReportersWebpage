@@ -133,7 +133,7 @@ export const columns: ColumnDef<Payment>[] = [
           <AlertDialog>
             <AlertDialogTrigger>
               <Button className="bg-red-500 hidden text-white px-4 py-2 rounded shadow-lg hover:-translate-y-0.5 hover:bg-red-600">
-              //  delete
+               delete
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
