@@ -18,32 +18,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "@/config/app";
 import { ArticleFlag } from "@/Redux/reducers/ArticlesFlag";
 import { Editor } from "@tinymce/tinymce-react";
-// TinyMCE core and plugins
-import "tinymce/tinymce";
-import "tinymce/themes/silver/theme";
-import "tinymce/icons/default/icons";
-import "tinymce/plugins/image";
-import "tinymce/plugins/media";
-import "tinymce/plugins/link";
-import "tinymce/plugins/autolink";
-import "tinymce/plugins/lists";
-import "tinymce/plugins/emoticons";
-import "tinymce/plugins/charmap";
-import "tinymce/plugins/table";
-import "tinymce/plugins/visualblocks";
-import "tinymce/plugins/searchreplace";
-import "tinymce/plugins/wordcount";
 import Test from "./Test";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { debounce } from "lodash";
 import { Badge } from "@/components/ui/badge";
 import { Icons } from "@/components/icons";
+import { useNavigate, useParams } from "react-router-dom";
+import { PageHeader } from "@/components/page-header";
 type FormData = {
   title: string;
   content: string;
 };
+interface Article {
+    id: number;
+    title: { rendered: string };
+    content: { rendered: string };
+  }
 
-const CreateArticle = () => {
+const EditArticle = () => {
+    const { paymentId } = useParams();
   const form = useForm<FormData>({
     defaultValues: {
       title: "",
@@ -57,9 +50,64 @@ const CreateArticle = () => {
   const [s3_base_url, setS3_base_url] = useState("");
   const loginParams = useSelector((state: any) => state.loginParams);
   const dispatch = useDispatch();
+  const naviagte = useNavigate();
+  const [article, setArticle]:any = useState<Article | null>(null);
+console.log(article?.title?.rendered,"hereeeeeeeeeeee")
+  // Create Basic Auth Header
+  const createBasicAuthHeader = () => {
+    const credentials = `${loginParams?.email}:${loginParams?.password}`;
+    const encodedCredentials = btoa(credentials);
+    return `Basic ${encodedCredentials}`;
+  };
 
-  // const editorSkin = theme === "dark" ? "oxide-dark" : "oxide";
-  // const editorContentCss = theme === "dark" ? "dark" : "default";
+  function decodeHtmlEntities(html: string): string {
+    const entities: { [key: string]: string } = {
+      "&amp;": "&",
+      "&#8211;": "–",
+      "&#8216;": "‘",
+      "&#8217;": "’",
+      "&#8220;": "“",
+      "&#8221;": "”",
+      "&#39;": "'",
+      "&quot;": '"',
+      "&lt;": "<",
+      "&gt;": ">",
+    };
+  
+    return html.replace(/&[a-z#0-9]+;/g, (entity) => entities[entity] || entity);
+  }
+
+  useEffect(() => {
+    const authHeader = createBasicAuthHeader();
+
+    const fetchArticle = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}wp/v2/posts/${paymentId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authHeader,
+          },
+        });
+
+        const data = response?.data;
+
+        if (data) {
+          setArticle(data);
+        } else {
+          setError("No article found.");
+        }
+      } catch (error: any) {
+        setError(error.message || "API call failed.");
+        toast.error(`API call failed: ${error.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticle();
+  }, [paymentId]);
+
+  
 
   const {
     setValue,
@@ -68,12 +116,6 @@ const CreateArticle = () => {
     formState: { errors },
   } = form;
 
-  const createBasicAuthHeader = () => {
-    const credentials = `${loginParams?.email}:${loginParams?.password}`;
-    const encodedCredentials = btoa(credentials);
-    return `Basic ${encodedCredentials}`;
-  };
-
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const makeArticleAPICall = (title: string, content: string) => {
@@ -81,7 +123,7 @@ const CreateArticle = () => {
     setLoading(true);
     axios
       .post(
-        `${BASE_URL}wp/v2/posts`,
+        `${BASE_URL}wp/v2/posts/${paymentId}`,
         {
           status: "draft",
           title,
@@ -112,7 +154,6 @@ const CreateArticle = () => {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log(data, "dataaaaa");
     let contentWithVideo = data.content;
 
     if (!contentWithVideo) {
@@ -137,10 +178,12 @@ const CreateArticle = () => {
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       form.reset();
       toast.success("Article posted successfully!");
+      naviagte(`/article/${paymentId}`)
     } else {
       // If no video tag is present, submit content as is
       makeArticleAPICall(data.title || "Untitled Post", contentWithVideo);
       toast.success("Article posted successfully!");
+      naviagte(`/article/${paymentId}`)
     }
     form.reset();
   };
@@ -177,9 +220,20 @@ const CreateArticle = () => {
     uploadType = ""; // Reset upload type
   }, 1000);
 
+  // Set form default values when article is fetched
+useEffect(() => {
+  if (article) {
+    // Set default values for title and content fields
+    setValue("title", decodeHtmlEntities(article?.title?.rendered || ""));
+    setValue("content", article?.content?.rendered || "");
+  }
+}, [article, setValue]);
+
   return (
-    <div className="bg-purple-100 text-foreground flex items-center justify-evenly max-h-full">
+    <div className="bg-purple-100 text-foreground flex items-center justify-evenly max-h-full px-4">
+        
       <div className="w-full divide-y divide-slate-300">
+      <PageHeader className="font-bold">Edit Article</PageHeader>
         <div className="w-full flex">
           <Form {...form}>
             <form
@@ -189,6 +243,7 @@ const CreateArticle = () => {
               <FormField
                 control={form.control}
                 name="title"
+                defaultValue={article?.title?.rendered}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
@@ -214,90 +269,98 @@ const CreateArticle = () => {
                       <p>Content</p>
                     </FormLabel>
                     <FormControl className="shadow-lg">
-                    <Editor
-  value={field.value}
-  onEditorChange={(content: string) => {
-    field.onChange(content);
-  }}
-  init={{
-    plugins: [
-      "anchor",
-      "autolink",
-      "lists",
-      "link",
-      "media",
-      "image",
-      "emoticons",
-      "charmap",
-      "searchreplace",
-      "table",
-      "visualblocks",
-      "wordcount",
-    ],
-    content_style: `
-      div { margin: 10px; padding: 3px; }
-      img, video {
-        display: block;
-        width: 100%;
-        max-width: 800px;
-        margin: 10px 0;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        object-fit: contain;
-      }
-      span.mce-preview-object.mce-object-video {
-        background-color: transparent !important; /* Remove black background */
-        box-shadow: none !important; /* Remove any shadows */
-        border: none !important; /* Remove borders */
-      }
-      @media (max-width: 768px) {
-        img, video {
-          width: 90%;
-        }
-      }
-    `,
-    resize: true,
-    placeholder: "Write Your Article Here..",
-    height: 220,
-    menubar: false,
-    branding: false,
-    elementpath: false,
-    toolbar: false, // Hide the main toolbar
-    setup: (editor) => {
-      editor.on("init", () => {
-        const container = editor.getContainer();
-        const statusbar = container.querySelector(".tox-statusbar");
-        if (statusbar) {
-          const buttonContainer = document.createElement("div");
-          buttonContainer.style.display = "flex";
-          buttonContainer.style.alignItems = "center";
-          buttonContainer.style.marginLeft = "auto";
+                      <Editor
+                        apiKey="r0gaizxe4aaa1yunnjujdr34ldg7qm9l1va0s8jrdx8ewji9"
+                        value={field.value}
+                        initialValue={article?.content?.rendered}
+                        onEditorChange={(content: string) => {
+                          field.onChange(content);
+                        }}
+                        init={{
+                          
+                          plugins: [
+                            "anchor",
+                            "autolink",
+                            "lists",
+                            "link",
+                            "media",
+                            "image",
+                            "emoticons",
+                            "charmap",
+                            "searchreplace",
+                            "table",
+                            "visualblocks",
+                            "wordcount",
+                          ],
+                          content_style: `
+  div { margin: 10px; padding: 3px; }
+  img, video {
+    display: block;
+    width: 100%;
+    max-width: 800px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    object-fit: contain;
+  }
+  span.mce-preview-object.mce-object-video {
+    background-color: transparent !important; /* Remove black background */
+    box-shadow: none !important; /* Remove any shadows */
+    border: none !important; /* Remove borders */
+  }
+  @media (max-width: 768px) {
+    img, video {
+      width: 90%;
+     
+    }
+  }
+`,
 
-          const insertButton = document.createElement("button");
-          insertButton.textContent = "Insert Video or Image";
-          insertButton.type = "button";
-          insertButton.style.marginLeft = "8px";
-          insertButton.style.padding = "4px 8px";
-          insertButton.style.backgroundColor = "#FFC107";
-          insertButton.style.color = "#000";
-          insertButton.style.border = "none";
-          insertButton.style.cursor = "pointer";
-          insertButton.style.borderRadius = "4px";
+                          resize: true,
+                          placeholder: "Write Your Article Here..",
+                          height: 220,
+                          menubar: false,
+                          branding: false,
+                          elementpath: false,
+                          toolbar: false, // Hide the main toolbar
+                          setup: (editor) => {
+                            editor.on("init", () => {
+                              const container = editor.getContainer();
+                              const statusbar =
+                                container.querySelector(".tox-statusbar");
+                              if (statusbar) {
+                                const buttonContainer =
+                                  document.createElement("div");
+                                buttonContainer.style.display = "flex";
+                                buttonContainer.style.alignItems = "center";
+                                buttonContainer.style.marginLeft = "auto";
 
-          insertButton.addEventListener("click", (e) => {
-            e.stopPropagation(); // Prevent propagation
-            e.preventDefault(); // Prevent any default form submission
-            setIsDialogOpen(true);
-          });
+                                const insertButton =
+                                  document.createElement("button");
+                                insertButton.textContent =
+                                  "Insert Video or Image";
+                                insertButton.type = "button";
+                                insertButton.style.marginLeft = "8px";
+                                insertButton.style.padding = "4px 8px";
+                                insertButton.style.backgroundColor = "#FFC107";
+                                insertButton.style.color = "#000";
+                                insertButton.style.border = "none";
+                                insertButton.style.cursor = "pointer";
+                                insertButton.style.borderRadius = "4px";
 
-          buttonContainer.appendChild(insertButton);
-          statusbar.appendChild(buttonContainer);
-        }
-      });
-    },
-  }}
-/>
+                                insertButton.addEventListener("click", (e) => {
+                                  e.stopPropagation(); // Prevent propagation
+                                  e.preventDefault(); // Prevent any default form submission
+                                  setIsDialogOpen(true);
+                                });
 
+                                buttonContainer.appendChild(insertButton);
+                                statusbar.appendChild(buttonContainer);
+                              }
+                            });
+                          },
+                        }}
+                      />
                     </FormControl>
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                       <DialogTrigger>
@@ -405,7 +468,7 @@ const CreateArticle = () => {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">Update</Button>
                   </div>
                 </div>
               )}
@@ -417,4 +480,4 @@ const CreateArticle = () => {
   );
 };
 
-export default CreateArticle;
+export default EditArticle;
